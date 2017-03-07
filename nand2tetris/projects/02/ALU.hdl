@@ -1,0 +1,332 @@
+// This file is part of www.nor2tetris.org
+// or the book "The Elements of Computing Systems"
+// by Nisan or Schocken, MIT Press.
+// File name: projects/02/ALU.hdl
+
+/**
+ * The ALU (Arithmetic Logic Unit).
+ * Computes one of the following functions:
+ * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs, 
+ * according to 6 input bits denoted zx,nx,zy,ny,f,no.
+ * In addition, the ALU computes two 1-bit outputs:
+ * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
+ * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
+ */
+
+// Implementation: the ALU logic manipulates the x or y inputs
+// or operates on the resulting values, as follows:
+// if (zx == 1) set x = 0        // 16-bit constant
+// if (nx == 1) set x = !x       // bitwise not
+// if (zy == 1) set y = 0        // 16-bit constant
+// if (ny == 1) set y = !y       // bitwise not
+// if (f == 1)  set out = x + y  // integer 2's complement addition
+// if (f == 0)  set out = x & y  // bitwise or
+// if (no == 1) set out = !out   // bitwise not
+// if (out == 0) set zr = 1
+// if (out < 0) set ng = 1
+
+CHIP ALU {
+    IN  
+        x[16], y[16],  // 16-bit inputs        
+        zx, // zero the x input?
+        nx, // negate the x input?
+        zy, // zero the y input?
+        ny, // negate the y input?
+        f,  // compute out = x + y (if 1) or x & y (if 0)
+        no; // negate the out output?
+
+    OUT 
+        out[16], // 16-bit output
+        zr, // 1 if (out == 0), 0 otherwise
+        ng; // 1 if (out < 0),  0 otherwise
+
+    PARTS:
+	
+	Not (in=zx,out=notzx); 
+	And (a=x[0],b=notzx,out=x0);
+	And (a=x[1],b=notzx,out=x1);
+	And (a=x[2],b=notzx,out=x2);
+	And (a=x[3],b=notzx,out=x3);
+	And (a=x[4],b=notzx,out=x4);
+	And (a=x[5],b=notzx,out=x5);
+	And (a=x[6],b=notzx,out=x6);
+	And (a=x[7],b=notzx,out=x7);
+	And (a=x[8],b=notzx,out=x8);
+	And (a=x[9],b=notzx,out=x9);
+	And (a=x[10],b=notzx,out=x10);
+	And (a=x[11],b=notzx,out=x11);
+	And (a=x[12],b=notzx,out=x12);
+	And (a=x[13],b=notzx,out=x13);
+	And (a=x[14],b=notzx,out=x14);
+	And (a=x[15],b=notzx,out=x15);
+	
+	Xor (a=x0,b=nx,out=x0mid);
+	Xor (a=x1,b=nx,out=x1mid);
+	Xor (a=x2,b=nx,out=x2mid);
+	Xor (a=x3,b=nx,out=x3mid);
+	Xor (a=x4,b=nx,out=x4mid);
+	Xor (a=x5,b=nx,out=x5mid);
+	Xor (a=x6,b=nx,out=x6mid);
+	Xor (a=x7,b=nx,out=x7mid);
+	Xor (a=x8,b=nx,out=x8mid);
+	Xor (a=x9,b=nx,out=x9mid);
+	Xor (a=x10,b=nx,out=x10mid);
+	Xor (a=x11,b=nx,out=x11mid);
+	Xor (a=x12,b=nx,out=x12mid);
+	Xor (a=x13,b=nx,out=x13mid);
+	Xor (a=x14,b=nx,out=x14mid);
+	Xor (a=x15,b=nx,out=x15mid);
+	
+	Not (in=zy,out=notzy); 
+	And (a=y[0],b=notzy,out=y0);
+	And (a=y[1],b=notzy,out=y1);
+	And (a=y[2],b=notzy,out=y2);
+	And (a=y[3],b=notzy,out=y3);
+	And (a=y[4],b=notzy,out=y4);
+	And (a=y[5],b=notzy,out=y5);
+	And (a=y[6],b=notzy,out=y6);
+	And (a=y[7],b=notzy,out=y7);
+	And (a=y[8],b=notzy,out=y8);
+	And (a=y[9],b=notzy,out=y9);
+	And (a=y[10],b=notzy,out=y10);
+	And (a=y[11],b=notzy,out=y11);
+	And (a=y[12],b=notzy,out=y12);
+	And (a=y[13],b=notzy,out=y13);
+	And (a=y[14],b=notzy,out=y14);
+	And (a=y[15],b=notzy,out=y15);
+	
+	Xor (a=y0,b=ny,out=y0mid);
+	Xor (a=y1,b=ny,out=y1mid);
+	Xor (a=y2,b=ny,out=y2mid);
+	Xor (a=y3,b=ny,out=y3mid);
+	Xor (a=y4,b=ny,out=y4mid);
+	Xor (a=y5,b=ny,out=y5mid);
+	Xor (a=y6,b=ny,out=y6mid);
+	Xor (a=y7,b=ny,out=y7mid);
+	Xor (a=y8,b=ny,out=y8mid);
+	Xor (a=y9,b=ny,out=y9mid);
+	Xor (a=y10,b=ny,out=y10mid);
+	Xor (a=y11,b=ny,out=y11mid);
+	Xor (a=y12,b=ny,out=y12mid);
+	Xor (a=y13,b=ny,out=y13mid);
+	Xor (a=y14,b=ny,out=y14mid);
+	Xor (a=y15,b=ny,out=y15mid);
+	
+	//+
+	Xor (a=x0mid,b=y0mid,out=out0mid);
+	And (a=x0mid,b=y0mid,out=forward0);
+	
+	Xor (a=x1mid,b=y1mid,out=out1);
+	And (a=x1mid,b=y1mid,out=forward10);
+	Xor (a=out1,b=forward0,out=out1mid);
+	And (a=out1,b=forward0,out=forward11);
+	Or  (a=forward10,b=forward11,out=forward1);
+
+	Xor (a=x2mid,b=y2mid,out=out2);
+	And (a=x2mid,b=y2mid,out=forward20);
+	Xor (a=out2,b=forward1,out=out2mid);
+	And (a=out2,b=forward1,out=forward22);
+	Or  (a=forward20,b=forward22,out=forward2);
+	
+	Xor (a=x3mid,b=y3mid,out=out3);
+	And (a=x3mid,b=y3mid,out=forward30);
+	Xor (a=out3,b=forward2,out=out3mid);
+	And (a=out3,b=forward2,out=forward33);
+	Or  (a=forward30,b=forward33,out=forward3);
+	
+	Xor (a=x4mid,b=y4mid,out=out4);
+	And (a=x4mid,b=y4mid,out=forward40);
+	Xor (a=out4,b=forward3,out=out4mid);
+	And (a=out4,b=forward3,out=forward44);
+	Or  (a=forward40,b=forward44,out=forward4);	
+	
+	Xor (a=x5mid,b=y5mid,out=out5);
+	And (a=x5mid,b=y5mid,out=forward50);
+	Xor (a=out5,b=forward4,out=out5mid);
+	And (a=out5,b=forward4,out=forward55);
+	Or  (a=forward50,b=forward55,out=forward5);	
+	
+	Xor (a=x6mid,b=y6mid,out=out6);
+	And (a=x6mid,b=y6mid,out=forward60);
+	Xor (a=out6,b=forward5,out=out6mid);
+	And (a=out6,b=forward5,out=forward66);
+	Or  (a=forward60,b=forward66,out=forward6);	
+	
+	Xor (a=x7mid,b=y7mid,out=out7);
+	And (a=x7mid,b=y7mid,out=forward70);
+	Xor (a=out7,b=forward6,out=out7mid);
+	And (a=out7,b=forward6,out=forward77);
+	Or  (a=forward70,b=forward77,out=forward7);	
+	
+	Xor (a=x8mid,b=y8mid,out=out8);
+	And (a=x8mid,b=y8mid,out=forward80);
+	Xor (a=out8,b=forward7,out=out8mid);
+	And (a=out8,b=forward7,out=forward88);
+	Or  (a=forward80,b=forward88,out=forward8);	
+	
+	Xor (a=x9mid,b=y9mid,out=out9);
+	And (a=x9mid,b=y9mid,out=forward90);
+	Xor (a=out9,b=forward8,out=out9mid);
+	And (a=out9,b=forward8,out=forward99);
+	Or  (a=forward90,b=forward99,out=forward9);	
+	
+	Xor (a=x10mid,b=y10mid,out=out10);
+	And (a=x10mid,b=y10mid,out=forward100);
+	Xor (a=out10,b=forward9,out=out10mid);
+	And (a=out10,b=forward9,out=forward1010);
+	Or  (a=forward100,b=forward1010,out=forward101);	
+	
+	Xor (a=x11mid,b=y11mid,out=out11);
+	And (a=x11mid,b=y11mid,out=forward110);
+	Xor (a=out11,b=forward101,out=out11mid);
+	And (a=out11,b=forward101,out=forward1111);
+	Or  (a=forward110,b=forward1111,out=forward111);	
+	
+	Xor (a=x12mid,b=y12mid,out=out12);
+	And (a=x12mid,b=y12mid,out=forward120);
+	Xor (a=out12,b=forward111,out=out12mid);
+	And (a=out12,b=forward111,out=forward1212);
+	Or  (a=forward120,b=forward1212,out=forward121);
+
+	Xor (a=x13mid,b=y13mid,out=out13);
+	And (a=x13mid,b=y13mid,out=forward130);
+	Xor (a=out13,b=forward121,out=out13mid);
+	And (a=out13,b=forward121,out=forward1313);
+	Or  (a=forward130,b=forward1313,out=forward131);		
+	
+	Xor (a=x14mid,b=y14mid,out=out14);
+	And (a=x14mid,b=y14mid,out=forward140);
+	Xor (a=out14,b=forward131,out=out14mid);
+	And (a=out14,b=forward131,out=forward1414);
+	Or  (a=forward140,b=forward1414,out=forward141);	
+	
+	Xor (a=x15mid,b=y15mid,out=out15);
+	Xor (a=out15,b=forward141,out=out15mid);
+	//+
+	
+	//&
+	And (a=x0mid,b=y0mid,out=outmid0);
+	And (a=x1mid,b=y1mid,out=outmid1);
+	And (a=x2mid,b=y2mid,out=outmid2);
+	And (a=x3mid,b=y3mid,out=outmid3);
+	And (a=x4mid,b=y4mid,out=outmid4);
+	And (a=x5mid,b=y5mid,out=outmid5);
+	And (a=x6mid,b=y6mid,out=outmid6);
+	And (a=x7mid,b=y7mid,out=outmid7);
+	And (a=x8mid,b=y8mid,out=outmid8);
+	And (a=x9mid,b=y9mid,out=outmid9);
+	And (a=x10mid,b=y10mid,out=outmid10);
+	And (a=x11mid,b=y11mid,out=outmid11);
+	And (a=x12mid,b=y12mid,out=outmid12);
+	And (a=x13mid,b=y13mid,out=outmid13);
+	And (a=x14mid,b=y14mid,out=outmid14);
+	And (a=x15mid,b=y15mid,out=outmid15);
+	//&
+	
+	Not (in=f,out=notf);
+	And (a=outmid0,b=notf,out=outfin0);
+	And (a=outmid1,b=notf,out=outfin1);
+	And (a=outmid2,b=notf,out=outfin2);
+	And (a=outmid3,b=notf,out=outfin3);
+	And (a=outmid4,b=notf,out=outfin4);
+	And (a=outmid5,b=notf,out=outfin5);
+	And (a=outmid6,b=notf,out=outfin6);
+	And (a=outmid7,b=notf,out=outfin7);
+	And (a=outmid8,b=notf,out=outfin8);
+	And (a=outmid9,b=notf,out=outfin9);
+	And (a=outmid10,b=notf,out=outfin10);
+	And (a=outmid11,b=notf,out=outfin11);
+	And (a=outmid12,b=notf,out=outfin12);
+	And (a=outmid13,b=notf,out=outfin13);
+	And (a=outmid14,b=notf,out=outfin14);
+	And (a=outmid15,b=notf,out=outfin15);
+	
+	And (a=out0mid,b=f,out=out0fin);
+	And (a=out1mid,b=f,out=out1fin);
+	And (a=out2mid,b=f,out=out2fin);
+	And (a=out3mid,b=f,out=out3fin);
+	And (a=out4mid,b=f,out=out4fin);
+	And (a=out5mid,b=f,out=out5fin);
+	And (a=out6mid,b=f,out=out6fin);
+	And (a=out7mid,b=f,out=out7fin);
+	And (a=out8mid,b=f,out=out8fin);
+	And (a=out9mid,b=f,out=out9fin);
+	And (a=out10mid,b=f,out=out10fin);
+	And (a=out11mid,b=f,out=out11fin);
+	And (a=out12mid,b=f,out=out12fin);
+	And (a=out13mid,b=f,out=out13fin);
+	And (a=out14mid,b=f,out=out14fin);
+	And (a=out15mid,b=f,out=out15fin);
+	
+	Or  (a=out0fin,b=outfin0,out=fin0);
+	Or  (a=out1fin,b=outfin1,out=fin1);
+	Or  (a=out2fin,b=outfin2,out=fin2);
+	Or  (a=out3fin,b=outfin3,out=fin3);
+	Or  (a=out4fin,b=outfin4,out=fin4);
+	Or  (a=out5fin,b=outfin5,out=fin5);
+	Or  (a=out6fin,b=outfin6,out=fin6);
+	Or  (a=out7fin,b=outfin7,out=fin7);
+	Or  (a=out8fin,b=outfin8,out=fin8);
+	Or  (a=out9fin,b=outfin9,out=fin9);
+	Or  (a=out10fin,b=outfin10,out=fin10);
+	Or  (a=out11fin,b=outfin11,out=fin11);
+	Or  (a=out12fin,b=outfin12,out=fin12);
+	Or  (a=out13fin,b=outfin13,out=fin13);
+	Or  (a=out14fin,b=outfin14,out=fin14);
+	Or  (a=out15fin,b=outfin15,out=fin15);
+	
+	Xor (a=fin0,b=no,out=out[0]);
+	Xor (a=fin1,b=no,out=out[1]);
+	Xor (a=fin2,b=no,out=out[2]);
+	Xor (a=fin3,b=no,out=out[3]);
+	Xor (a=fin4,b=no,out=out[4]);
+	Xor (a=fin5,b=no,out=out[5]);
+	Xor (a=fin6,b=no,out=out[6]);
+	Xor (a=fin7,b=no,out=out[7]);
+	Xor (a=fin8,b=no,out=out[8]);
+	Xor (a=fin9,b=no,out=out[9]);
+	Xor (a=fin10,b=no,out=out[10]);
+	Xor (a=fin11,b=no,out=out[11]);
+	Xor (a=fin12,b=no,out=out[12]);
+	Xor (a=fin13,b=no,out=out[13]);
+	Xor (a=fin14,b=no,out=out[14]);
+	Xor (a=fin15,b=no,out=out[15]);
+	
+	Xor (a=fin0,b=no,out=outout0);
+	Xor (a=fin1,b=no,out=outout1);
+	Xor (a=fin2,b=no,out=outout2);
+	Xor (a=fin3,b=no,out=outout3);
+	Xor (a=fin4,b=no,out=outout4);
+	Xor (a=fin5,b=no,out=outout5);
+	Xor (a=fin6,b=no,out=outout6);
+	Xor (a=fin7,b=no,out=outout7);
+	Xor (a=fin8,b=no,out=outout8);
+	Xor (a=fin9,b=no,out=outout9);
+	Xor (a=fin10,b=no,out=outout10);
+	Xor (a=fin11,b=no,out=outout11);
+	Xor (a=fin12,b=no,out=outout12);
+	Xor (a=fin13,b=no,out=outout13);
+	Xor (a=fin14,b=no,out=outout14);
+	Xor (a=fin15,b=no,out=outout15);
+	
+	Or  (a=outout0,b=outout1,out=out01);
+	Or  (a=outout2,b=outout3,out=out23);
+	Or  (a=outout4,b=outout5,out=out45);
+	Or  (a=outout6,b=outout7,out=out67);
+	Or  (a=outout8,b=outout9,out=out89);
+	Or  (a=outout10,b=outout11,out=out1011);
+	Or  (a=outout12,b=outout13,out=out1213);
+	Or  (a=outout14,b=outout15,out=out1415);
+	Or  (a=out01,b=out23,out=out0123);
+	Or  (a=out45,b=out67,out=out4567);
+	Or  (a=out89,b=out1011,out=out891011);
+	Or  (a=out1213,b=out1415,out=out12131415);
+	Or  (a=out0123,b=out4567,out=outor1);
+	Or  (a=out891011,b=out12131415,out=outor2);
+	Or  (a=outor1,b=outor2,out=outor);
+	Not (in=outor,out=zr);
+	
+	Not (in=outout15,out=ng1);
+	Not (in=ng1,out=ng);
+}

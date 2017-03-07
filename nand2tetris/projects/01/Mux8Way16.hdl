@@ -1,0 +1,58 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux8Way.hdl
+
+/**
+ * 8-way 16-bit multiplexor:
+ * out = a if sel == 000
+ *       b if sel == 001
+ *       etc.
+ *       h if sel == 111
+ */
+
+CHIP Mux8Way16 {
+    IN a[16], b[16], c[16], d[16],
+       e[16], f[16], g[16], h[16],
+       sel[3];
+    OUT out[16];
+
+    PARTS:
+    Not (in=sel[0],out=selcon0);
+    Not (in=sel[2],out=selcon2);
+    Not (in=sel[1],out=selcon1);
+	
+	And (a=sel[0],b=selcon0,out=false);
+	
+	And (a=selcon0,b=selcon1,out=selamid);
+	And (a=selamid,b=selcon2,out=sela);
+	Mux16 (a=false,b=a,sel=sela,out=outa);
+	
+	And (a=sel[0],b=selcon1,out=selbmid);
+	And (a=selbmid,b=selcon2,out=selb);
+	Mux16 (a=outa,b=b,sel=selb,out=outb);
+	
+	And (a=selcon0,b=sel[1],out=selcmid);
+	And (a=selcmid,b=selcon2,out=selc);
+	Mux16 (a=outb,b=c,sel=selc,out=outc);
+	
+	And (a=sel[0],b=sel[1],out=seldmid);
+	And (a=seldmid,b=selcon2,out=seld);
+	Mux16 (a=outc,b=d,sel=seld,out=outd);
+	
+	And (a=selcon0,b=selcon1,out=selemid);
+	And (a=selemid,b=sel[2],out=sele);
+	Mux16 (a=outd,b=e,sel=sele,out=oute);
+	
+	And (a=sel[0],b=selcon1,out=selfmid);
+	And (a=selfmid,b=sel[2],out=self);
+	Mux16 (a=oute,b=f,sel=self,out=outf);
+	
+	And (a=selcon0,b=sel[1],out=selgmid);
+	And (a=selgmid,b=sel[2],out=selg);
+	Mux16 (a=outf,b=g,sel=selg,out=outg);
+	
+	And (a=sel[0],b=sel[1],out=selhmid);
+	And (a=selhmid,b=sel[2],out=selh);
+	Mux16 (a=outg,b=h,sel=selh,out=out);
+}
