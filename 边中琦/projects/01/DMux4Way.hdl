@@ -18,12 +18,12 @@ CHIP DMux4Way {
     PARTS:
     Not( in = sel[0] , out = nsel0 );
     Not( in = sel[1] , out = nsel1 );
-    And( a = nsel0 , b = nsel1 , out = sa );
-    And( a = sel[0], b = nsel1 , out = sb );
-    And( a = nsel0 , b = sel[1], out = sc );
-    And( a = sel[0], b = sel[1], out = sd );
-    Mux( a = false , b = in , sel =sa , out = a );
-    Mux( a = false , b = in , sel =sb , out = b );
-    Mux( a = false , b = in , sel =sc , out = c );
-    Mux( a = false , b = in , sel =sd , out = d );
+    And( a = nsel0 , b = nsel1 , out = aa );
+    And( a = sel[0], b = nsel1 , out = ab );
+    And( a = nsel0 , b = sel[1], out = ac );
+    And( a = sel[0], b = sel[1], out = ad );
+    Mux( a = false , b = in , sel =aa , out = a );
+    Mux( a = false , b = in , sel =ab , out = b );
+    Mux( a = false , b = in , sel =ac , out = c );
+    Mux( a = false , b = in , sel =ad , out = d );
 }
