@@ -1,0 +1,49 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/Inc16.hdl
+
+/**
+ * 16-bit incrementer:
+ * out = in + 1 (arithmetic addition)
+ */
+
+CHIP Inc16 {
+    IN in[16];
+    OUT out[16];
+
+    PARTS:
+	And (a=in[0],b=in[0],out=true);
+	
+	Xor (a=in[0],b=true,out=out[0]);
+	And (a=in[0],b=true,out=forward0);
+	Xor (a=in[1],b=forward0,out=out[1]);
+	And (a=in[1],b=forward0,out=forward1);
+	Xor (a=in[2],b=forward1,out=out[2]);
+	And (a=in[2],b=forward1,out=forward2);
+	Xor (a=in[3],b=forward2,out=out[3]);
+	And (a=in[3],b=forward2,out=forward3);
+	Xor (a=in[4],b=forward3,out=out[4]);
+	And (a=in[4],b=forward3,out=forward4);
+	Xor (a=in[5],b=forward4,out=out[5]);
+	And (a=in[5],b=forward4,out=forward5);
+	Xor (a=in[6],b=forward5,out=out[6]);
+	And (a=in[6],b=forward5,out=forward6);
+	Xor (a=in[7],b=forward6,out=out[7]);
+	And (a=in[7],b=forward6,out=forward7);
+	Xor (a=in[8],b=forward7,out=out[8]);
+	And (a=in[8],b=forward7,out=forward8);
+	Xor (a=in[9],b=forward8,out=out[9]);
+	And (a=in[9],b=forward8,out=forward9);
+	Xor (a=in[10],b=forward9,out=out[10]);
+	And (a=in[10],b=forward9,out=forward10);
+	Xor (a=in[11],b=forward10,out=out[11]);
+	And (a=in[11],b=forward10,out=forward11);
+	Xor (a=in[12],b=forward11,out=out[12]);
+	And (a=in[12],b=forward11,out=forward12);
+	Xor (a=in[13],b=forward12,out=out[13]);
+	And (a=in[13],b=forward12,out=forward13);
+	Xor (a=in[14],b=forward13,out=out[14]);
+	And (a=in[14],b=forward13,out=forward14);
+	Xor (a=in[15],b=forward14,out=out[15]);
+}

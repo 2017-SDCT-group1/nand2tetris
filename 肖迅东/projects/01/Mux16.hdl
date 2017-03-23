@@ -1,0 +1,69 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux16.hdl
+
+/**
+ * 16-bit multiplexor: 
+ * for i = 0..15 out[i] = a[i] if sel == 0 
+ *                        b[i] if sel == 1
+ */
+
+CHIP Mux16 {
+    IN a[16], b[16], sel;
+    OUT out[16];
+
+    PARTS:
+    Not (in=sel,out=selcon);
+	
+	And (a=a[0],b=selcon,out=outa0);
+	And (a=a[1],b=selcon,out=outa1);
+	And (a=a[2],b=selcon,out=outa2);	
+	And (a=a[3],b=selcon,out=outa3);
+	And (a=a[4],b=selcon,out=outa4);
+	And (a=a[5],b=selcon,out=outa5);
+	And (a=a[6],b=selcon,out=outa6);
+	And (a=a[7],b=selcon,out=outa7);
+	And (a=a[8],b=selcon,out=outa8);
+	And (a=a[9],b=selcon,out=outa9);
+	And (a=a[10],b=selcon,out=outa10);
+	And (a=a[11],b=selcon,out=outa11);
+	And (a=a[12],b=selcon,out=outa12);
+	And (a=a[13],b=selcon,out=outa13);
+	And (a=a[14],b=selcon,out=outa14);
+	And (a=a[15],b=selcon,out=outa15);
+	
+	And (a=b[0],b=sel,out=outb0);
+	And (a=b[1],b=sel,out=outb1);
+	And (a=b[2],b=sel,out=outb2);	
+	And (a=b[3],b=sel,out=outb3);
+	And (a=b[4],b=sel,out=outb4);
+	And (a=b[5],b=sel,out=outb5);
+	And (a=b[6],b=sel,out=outb6);
+	And (a=b[7],b=sel,out=outb7);
+	And (a=b[8],b=sel,out=outb8);
+	And (a=b[9],b=sel,out=outb9);
+	And (a=b[10],b=sel,out=outb10);
+	And (a=b[11],b=sel,out=outb11);
+	And (a=b[12],b=sel,out=outb12);
+	And (a=b[13],b=sel,out=outb13);
+	And (a=b[14],b=sel,out=outb14);
+	And (a=b[15],b=sel,out=outb15);
+	
+	Or  (a=outb0,b=outa0,out=out[0]);
+	Or  (a=outb1,b=outa1,out=out[1]);
+	Or  (a=outb2,b=outa2,out=out[2]);	
+	Or  (a=outb3,b=outa3,out=out[3]);
+	Or  (a=outb4,b=outa4,out=out[4]);
+	Or  (a=outb5,b=outa5,out=out[5]);
+	Or  (a=outb6,b=outa6,out=out[6]);
+	Or  (a=outb7,b=outa7,out=out[7]);
+	Or  (a=outb8,b=outa8,out=out[8]);
+	Or  (a=outb9,b=outa9,out=out[9]);
+	Or  (a=outb10,b=outa10,out=out[10]]);
+	Or  (a=outb11,b=outa11,out=out[11]]);
+	Or  (a=outb12,b=outa12,out=out[12]]);
+	Or  (a=outb13,b=outa13,out=out[13]]);
+	Or  (a=outb14,b=outa14,out=out[14]]);
+	Or  (a=outb15,b=outa15,out=out[15]]);
+}

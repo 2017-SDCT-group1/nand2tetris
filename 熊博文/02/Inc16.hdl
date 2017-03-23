@@ -1,0 +1,51 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/Inc16.hdl
+
+/**
+ * 16-bit incrementer:
+ * out = in + 1 (arithmetic addition)
+ */
+
+CHIP Inc16 {
+    IN in[16];
+    OUT out[16];
+
+    PARTS:
+    Xor(a=in[0],b=in[0],out=b00);  
+    Not(in=b00,out=b0);  
+    Xor(a=in[1],b=in[1],out=b1);  
+    Xor(a=in[2],b=in[2],out=b2);  
+    Xor(a=in[3],b=in[3],out=b3);  
+    Xor(a=in[4],b=in[4],out=b4);  
+    Xor(a=in[5],b=in[5],out=b5);  
+    Xor(a=in[6],b=in[6],out=b6);  
+    Xor(a=in[7],b=in[7],out=b7);  
+    Xor(a=in[8],b=in[8],out=b8);  
+    Xor(a=in[9],b=in[9],out=b9);  
+    Xor(a=in[10],b=in[10],out=b10);  
+    Xor(a=in[11],b=in[11],out=b11);  
+    Xor(a=in[12],b=in[12],out=b12);  
+    Xor(a=in[13],b=in[13],out=b13);  
+    Xor(a=in[14],b=in[14],out=b14);  
+    Xor(a=in[15],b=in[15],out=b15);  
+  
+    HalfAdder(a=in[0],b=b0,sum=out[0],carry=addnum1);  
+    FullAdder(a=in[1],b=b1,c=addnum1,sum=out[1],carry=addnum2);  
+    FullAdder(a=in[2],b=b2,c=addnum2,sum=out[2],carry=addnum3);  
+    FullAdder(a=in[3],b=b3,c=addnum3,sum=out[3],carry=addnum4);  
+    FullAdder(a=in[4],b=b4,c=addnum4,sum=out[4],carry=addnum5);  
+    FullAdder(a=in[5],b=b5,c=addnum5,sum=out[5],carry=addnum6);  
+    FullAdder(a=in[6],b=b6,c=addnum6,sum=out[6],carry=addnum7);  
+    FullAdder(a=in[7],b=b7,c=addnum7,sum=out[7],carry=addnum8);  
+    FullAdder(a=in[8],b=b8,c=addnum8,sum=out[8],carry=addnum9);  
+    FullAdder(a=in[9],b=b9,c=addnum9,sum=out[9],carry=addnum10);  
+    FullAdder(a=in[10],b=b10,c=addnum10,sum=out[10],carry=addnum11);  
+    FullAdder(a=in[11],b=b11,c=addnum11,sum=out[11],carry=addnum12);  
+    FullAdder(a=in[12],b=b12,c=addnum12,sum=out[12],carry=addnum13);  
+    FullAdder(a=in[13],b=b13,c=addnum13,sum=out[13],carry=addnum14);  
+    FullAdder(a=in[14],b=b14,c=addnum14,sum=out[14],carry=addnum151);  
+    Xor(a=in[15],b=b15,out=addnum152);  
+    Xor(a=addnum151,b=addnum152,out=out[15]);  
+}

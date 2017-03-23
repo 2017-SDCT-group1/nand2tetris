@@ -1,0 +1,105 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/Adder16.hdl
+
+/**
+ * Adds two 16-bit values.
+ * The most significant carry bit is ignored.
+ */
+
+CHIP Add16 {
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+	Xor (a=a[0],b=b[0],out=out[0]);
+	And (a=a[0],b=b[0],out=forward0);
+	
+	Xor (a=a[1],b=b[1],out=out1);
+	And (a=a[1],b=b[1],out=forward10);
+	Xor (a=out1,b=forward0,out=out[1]);
+	And (a=out1,b=forward0,out=forward11);
+	Or  (a=forward10,b=forward11,out=forward1);
+
+	Xor (a=a[2],b=b[2],out=out2);
+	And (a=a[2],b=b[2],out=forward20);
+	Xor (a=out2,b=forward1,out=out[2]);
+	And (a=out2,b=forward1,out=forward22);
+	Or  (a=forward20,b=forward22,out=forward2);
+	
+	Xor (a=a[3],b=b[3],out=out3);
+	And (a=a[3],b=b[3],out=forward30);
+	Xor (a=out3,b=forward2,out=out[3]);
+	And (a=out3,b=forward2,out=forward33);
+	Or  (a=forward30,b=forward33,out=forward3);
+	
+	Xor (a=a[4],b=b[4],out=out4);
+	And (a=a[4],b=b[4],out=forward40);
+	Xor (a=out4,b=forward3,out=out[4]);
+	And (a=out4,b=forward3,out=forward44);
+	Or  (a=forward40,b=forward44,out=forward4);	
+	
+	Xor (a=a[5],b=b[5],out=out5);
+	And (a=a[5],b=b[5],out=forward50);
+	Xor (a=out5,b=forward4,out=out[5]);
+	And (a=out5,b=forward4,out=forward55);
+	Or  (a=forward50,b=forward55,out=forward5);	
+	
+	Xor (a=a[6],b=b[6],out=out6);
+	And (a=a[6],b=b[6],out=forward60);
+	Xor (a=out6,b=forward5,out=out[6]);
+	And (a=out6,b=forward5,out=forward66);
+	Or  (a=forward60,b=forward66,out=forward6);	
+	
+	Xor (a=a[7],b=b[7],out=out7);
+	And (a=a[7],b=b[7],out=forward70);
+	Xor (a=out7,b=forward6,out=out[7]);
+	And (a=out7,b=forward6,out=forward77);
+	Or  (a=forward70,b=forward77,out=forward7);	
+	
+	Xor (a=a[8],b=b[8],out=out8);
+	And (a=a[8],b=b[8],out=forward80);
+	Xor (a=out8,b=forward7,out=out[8]);
+	And (a=out8,b=forward7,out=forward88);
+	Or  (a=forward80,b=forward88,out=forward8);	
+	
+	Xor (a=a[9],b=b[9],out=out9);
+	And (a=a[9],b=b[9],out=forward90);
+	Xor (a=out9,b=forward8,out=out[9]);
+	And (a=out9,b=forward8,out=forward99);
+	Or  (a=forward90,b=forward99,out=forward9);	
+	
+	Xor (a=a[10],b=b[10],out=out10);
+	And (a=a[10],b=b[10],out=forward100);
+	Xor (a=out10,b=forward9,out=out[10]);
+	And (a=out10,b=forward9,out=forward1010);
+	Or  (a=forward100,b=forward1010,out=forward101);	
+	
+	Xor (a=a[11],b=b[11],out=out11);
+	And (a=a[11],b=b[11],out=forward110);
+	Xor (a=out11,b=forward101,out=out[11]);
+	And (a=out11,b=forward101,out=forward1111);
+	Or  (a=forward110,b=forward1111,out=forward111);	
+	
+	Xor (a=a[12],b=b[12],out=out12);
+	And (a=a[12],b=b[12],out=forward120);
+	Xor (a=out12,b=forward111,out=out[12]);
+	And (a=out12,b=forward111,out=forward1212);
+	Or  (a=forward120,b=forward1212,out=forward121);
+
+	Xor (a=a[13],b=b[13],out=out13);
+	And (a=a[13],b=b[13],out=forward130);
+	Xor (a=out13,b=forward121,out=out[13]);
+	And (a=out13,b=forward121,out=forward1313);
+	Or  (a=forward130,b=forward1313,out=forward131);		
+	
+	Xor (a=a[14],b=b[14],out=out14);
+	And (a=a[14],b=b[14],out=forward140);
+	Xor (a=out14,b=forward131,out=out[14]);
+	And (a=out14,b=forward131,out=forward1414);
+	Or  (a=forward140,b=forward1414,out=forward141);	
+	
+	Xor (a=a[15],b=b[15],out=out15);
+	Xor (a=out15,b=forward141,out=out[15]);
+}
