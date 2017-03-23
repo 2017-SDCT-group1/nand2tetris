@@ -20,7 +20,9 @@
  * they are affected instantaneously by the execution of the current 
  * instruction. The addressM and pc outputs are clocked: although they 
  * are affected by the execution of the current instruction, they commit 
- * to their new values only in the next time step. If reset==1 then the 
+ * to their new values only in the next time step. 
+
+ * If reset==1 then the 
  * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
  * than to the address resulting from executing the current instruction. 
  */
@@ -39,5 +41,52 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+	//address  format 0vvvvvvvvvvvvvvv
+	//instruction format  111accccccdddjjj
+	//The a- and c-bits instruct the ALU which function to compute
+	//the d-bits instruct where to store the ALU output
+	//the j-bits specify an optional jump condition
+	
+	Mux16 (a=instruction,b=ALUout,sel=instruction[15],out=inA);
+	//判断是A指令还是C指令	
+	Mux16 (a=outA,b=inM,sel=instruction[12],out=AOrM);	
+	//判断ALU处理对象
+	Mux (a=true,b=instruction[5],sel=instruction[15],out=loadA);
+	ARegister (in=inA,load=loadA,out=outA,out[0..14]=addressM);
+	And (a=instruction[15],b=instruction[4],out=loadD);
+	DRegister (in=ALUout,load=loadD,out=D);
+	//ALUin
+	ALU (x=D,y=AOrM,zx=instruction[11],nx=instruction[10],zy=instruction[9],ny=instruction[8],f=instruction[7],no=instruction[6],out=ALUout,out=outM,zr=zr,ng=ng);
+	//ALUout//=0->zr//<0->ng
+	PC (in=outA,load=jump,inc=true,reset=reset,out[0..14]=pc);
+	//PC
+	DMux8Way (in=true,sel[0..2]=instruction[0..2],a=NULL,b=JGT,c=JEQ,d=JGE,e=JLT,f=JNE,g=JLE,h=JMP);
+	//jump//=0->zr//<0->ng
+	Not (in=zr,out=nzr);
+	Not (in=ng,out=nng);
+	Or (a=zr,b=ng,out=small);
+	Not (in=small,out=nsmall);
+//number status	
+	And (a=JGT,b=nsmall,out=jgt);
+	And (a=JEQ,b=zr,out=jeq);
+	And (a=JGE,b=nng,out=jge);
+	And (a=JLT,b=ng,out=jlt);
+	And (a=JNE,b=nzr,out=jne);
+	And (a=JLE,b=small,out=jle);
+	And (a=JMP,b=true,out=jmp);
+	//jump switch
+	Or8Way (in[7]=false,in[6]=jgt,in[5]=jeq,in[4]=jge,in[3]=jlt,in[2]=jne,in[1]=jle,in[0]=jmp,out=JumpOrNot);
+	And (a=JumpOrNot,b=instruction[15],out=jump);
+	//wether jump?
+	Mux (a=false,b=instruction[3],sel=instruction[15],out=writeM);
 }
+//j1      j2          j3
+//(out < 0)(out = 0)(out > 0) Mnemonic     Effect
+//   0         0        0       null      No jump
+//   0         0        1       JGT    If out > 0 jump
+//   0         1        0       JEQ    If out = 0 jump
+//   0         1        1       JGE    If out>= 0 jump
+//   1         0        0       JLT    If out < 0 jump
+//   1         0        1       JNE    If out !=0 jump
+//   1         1        0       JLE    If out <= 0 jump
+//   1         1        1       JMP        Jump
