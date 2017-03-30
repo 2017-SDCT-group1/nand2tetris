@@ -48,9 +48,9 @@ CHIP CPU {
 	//the j-bits specify an optional jump condition
 	
 	Mux16 (a=instruction,b=ALUout,sel=instruction[15],out=inA);
-	//判断是A指令还是C指令	
-	Mux16 (a=outA,b=inM,sel=instruction[12],out=AOrM);	
-	//判断ALU处理对象
+	//判断是A指令还是C指令//输出一个地址
+	Mux16 (a=outA,b=inM,sel=instruction[12],out=AOrM);
+	//判断ALU处理对象//是A还是M
 	Mux (a=true,b=instruction[5],sel=instruction[15],out=loadA);
 	ARegister (in=inA,load=loadA,out=outA,out[0..14]=addressM);
 	And (a=instruction[15],b=instruction[4],out=loadD);
