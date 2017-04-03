@@ -1,3 +1,4 @@
+#参考自其它人的代码，设置常量便于维护
 # Command types
 C_ARITHMETIC = 0
 C_PUSH       = 1
@@ -7,7 +8,7 @@ C_GOTO       = 4
 C_IF         = 5
 C_FUNCTION   = 6
 C_RETURN     = 7
-C_CALL       = 8    
+C_CALL       = 8
 C_ERROR      = 9
 
 # Segment names

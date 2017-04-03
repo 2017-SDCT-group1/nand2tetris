@@ -24,3 +24,5 @@ def main():
             break
 
 main()
+print('compile succeed!')
+enter = input('press Enter to continue.')
