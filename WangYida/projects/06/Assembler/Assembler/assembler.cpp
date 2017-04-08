@@ -18,7 +18,6 @@ int datasymbols_number;
 int scan_time;
 int value;
 int out[16];
-int Ponggame;
 
 void DealAsLine(){
 	scan_time++;
@@ -432,8 +431,6 @@ void AddDataSymbol(char* s){
 }
 
 bool IsDataSymbol(char* s){
-	//if(IsInstructionSymbol(s))
-	//	return false;
 	for(int i = 0; i < datasymbols_number; i++){
 		if(strcmp(s, datasymbols[i].name) == 0 && datasymbols[i].validity == true)
 			return true;
@@ -457,17 +454,3 @@ int GetDataAddress(char* s){
 	return NULL;
 }
 
-void Delete(){
-	for(int i = 0; i < instructionsymbols_number; i++){
-		for(int j = 0; j < datasymbols_number; j++){
-			if(strcmp(instructionsymbols[i].name,datasymbols[j].name) == 0)
-				datasymbols[j].validity = false;
-		}
-	}
-	for(int i = 0; i < instructionsymbols_number; i++){
-		for(int j = 900; j < 950; j++){
-			if(strcmp(instructionsymbols[i].name,datasymbols[j].name) == 0)
-				datasymbols[j].validity = false;
-		}
-	}
-}

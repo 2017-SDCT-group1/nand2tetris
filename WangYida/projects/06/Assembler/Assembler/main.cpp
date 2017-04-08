@@ -7,7 +7,6 @@ int main(){
 	scan_time = 0;
 	datasymbols_number = 0;
 	instructionsymbols_number = 0;
-	Ponggame = 16;
 
 	strcpy_s(datasymbols[900].name,"SP\0");
 	datasymbols[900].number = 0;
@@ -31,21 +30,6 @@ int main(){
 	datasymbols[906].number = 24576;
 	datasymbols[906].validity = true;
 
-	/*strcpy_s(datasymbols[923].name,"ponggame.0\0");
-	datasymbols[923].number = 16;
-	datasymbols[923].validity = true;
-	strcpy_s(datasymbols[924].name,"math.1\0");
-	datasymbols[924].number = 17;
-	datasymbols[924].validity = true;
-	strcpy_s(datasymbols[925].name,"math.0\0");
-	datasymbols[925].number = 18;
-	datasymbols[925].validity = true;
-	strcpy_s(datasymbols[926].name,"memory.0\0");
-	datasymbols[926].number = 19;
-	datasymbols[926].validity = true;
-	strcpy_s(datasymbols[927].name,"output.4\0");
-	datasymbols[927].number = 20;
-	datasymbols[927].validity = true;*/
 
 	strcpy_s(datasymbols[907].name,"R0\0");
 	strcpy_s(datasymbols[908].name,"R1\0");
@@ -70,7 +54,6 @@ int main(){
 	}
 	
 	DealAsLine();
-	Delete();
 	datasymbols_number = 0;
 	DealAsLine();
 

@@ -28,7 +28,7 @@ extern int datasymbols_number;
 extern int scan_time;
 extern int value;
 extern int out[16];
-extern int Ponggame;
+
 
 //以下为函数Orz
 void DealAsLine();	//OK
@@ -44,7 +44,6 @@ void DealWithCJ();	//OK
 void DealWithSy();	//OK
 void AddInstructionSymbol(char* s);	//OK
 void AddDataSymbol(char* s);	//OK
-void Delete();	//OK
 
 bool IsInstructionSymbol(char* s); //OK
 bool IsDataSymbol(char* s);	//OK
