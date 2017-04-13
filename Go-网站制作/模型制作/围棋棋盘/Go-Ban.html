@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" >  
+<head> 
+<meta  http-equiv='Content' content="text/html; charset=UTF-8" /> 
+<script type="text/javascript">
+function $(s){return document.getElementById(s)}  
+//全局变量  
+var step=0;  
+var black=1;  
+var ball="●";  
+var arr="ABCDEFGHJKLMNOPQRST".split("");  
+
+window.onload=function(){  
+  init();  
+  adde();//addevent  
+}  
+function init(){  
+  var r='';  
+  //画棋盘线  
+  for(var i=0;i<324;i++)r+='<div></div>';//19*19个交叉点,每个交叉点用一个div  
+  $("line").innerHTML=r;  
+  r='';  
+  //画落子点div  
+  for(var i=0;i<19;i++){  
+    for(var j=0;j<19;j++){  
+      r+='<div id="'+arr[j]+(19-i)+'">&nbsp;</div>';  
+    }  
+  }  
+  $("grid").innerHTML=r;  
+  drawStar();  
+}  
+//画九颗星  
+function drawStar(){  
+  var s="<div>O</div>";  
+  $("D16").innerHTML=s;  
+  $("D10").innerHTML=s;  
+  $("D4").innerHTML=s;  
+  $("K16").innerHTML=s;  
+  $("K10").innerHTML=s;  
+  $("K4").innerHTML=s;  
+  $("Q16").innerHTML=s;  
+  $("Q10").innerHTML=s;  
+  $("Q4").innerHTML=s;  
+}  
+//为每个落子点注册单击事件  
+function adde(){  
+  var o=$("grid").childNodes;  
+  for(var i=0;i<o.length;i++){  
+    o[i].onclick=function(){  
+      if(this.innerHTML==ball)return;  
+      this.innerHTML=ball;  
+      this.style.color=black?"#000":"White"; 
+	  this.style.fontSize="50px";
+      black=!black;  
+      step++;  
+      cacu(this);  
+    }  
+  }  
+}  
+function cacu(o){  
+    //alert(o.id);  
+}  
+</script>  
+<style type="text/css">
+    body{margin:0;padding:0;background:white;}  
+    /*最外层边线*/  
+    #go{position:absolute;margin:50px;width:640px;height:640px;border:solid 5px Green;background-color:#a0a0a0;}  
+    /**/  
+    #line{position:absolute;width:540px;left:50px;top:50px;border:solid 2px #000;}  
+    /*棋盘是由19*19个有边线的div组成,所以div相交的地方是双线,边上是单线  
+      28*18=560-56=504是div宽度,18*2=36是线宽,总宽度为540  
+    */  
+    #line div{float:left;width:28px;height:28px;border:solid 1px #000;color:White;background-color:#fdcb6b}  
+    /*交叉点位置用隐藏的div,交叉点div宽高为30,与线交叉点间距为15,再减去line的线宽2  
+      即50-(15-2)  
+    */  
+    #grid{position:absolute;width:590px;left:37px;top:37px;}  
+    /*这里的宽度大于line似乎不太好*/  
+    #grid div{float:left;width:30px;height:30px;line-height:30px;text-align:center;color:#000;cursor:pointer;font-size:30px;}  
+      
+</style>
+<style type="text/css" mce_bogus="1">    body{margin:0;padding:0;background:white;}  
+    /*最外层边线*/  
+    #go{position:absolute;margin:50px;width:640px;height:640px;border:solid 5px Green;background-color:#a0a0a0;}  
+    /**/  
+    #line{position:absolute;width:540px;left:50px;top:50px;border:solid 2px #000;}  
+    /*棋盘是由19*19个有边线的div组成,所以div相交的地方是双线,边上是单线  
+      28*18=560-56=504是div宽度,18*2=36是线宽,总宽度为540  
+    */  
+    #line div{float:left;width:28px;height:28px;border:solid 1px #000;color:White;background-color:#fdcb6b}  
+    /*交叉点位置用隐藏的div,交叉点div宽高为30,与线交叉点间距为15,再减去line的线宽2  
+      即50-(15-2)  
+    */  
+    #grid{position:absolute;width:590px;left:37px;top:37px;}  
+    /*这里的宽度大于line似乎不太好*/  
+    #grid div{float:left;width:30px;height:30px;line-height:30px;text-align:center;color:#000;cursor:pointer;font-size:30px;}  
+</style>  
+</head>  
+<body>  
+<div id="go">  
+  <div id="line"></div>  
+  <div id="grid"></div>  
+</div>  
+</body>  
+</html>  

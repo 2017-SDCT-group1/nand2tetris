@@ -1,0 +1,26 @@
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html;charset=UTF-8'>
+<title>Talk</title>
+
+</head>
+<body>
+
+<script language='JavaSrcipt'>
+function Comment()
+{
+	var comment='';
+	if (document.form1.talk.value != '')
+	{
+		comment+=document.form1.talk.value;
+	}
+	alert(comment);
+}
+
+</script>
+<form name='form1' onsubmit='comment'>
+	输入:<input type='text' id='talk' name='talk'/>
+	<input type='button' value='发送' onclick='form1.onsubmit'/>
+</form>
+</body>
+</html>
