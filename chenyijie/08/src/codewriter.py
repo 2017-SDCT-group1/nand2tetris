@@ -10,6 +10,7 @@ class CodeWriter(object):
         self._ne_label_num = 1
         self._label_num = 1
 
+
     def setfilename(self):
         self._file = open(self._filename, 'w')
 
@@ -108,7 +109,10 @@ class CodeWriter(object):
             if arg1 == 'static':#为什么会不一样？
                 self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','@'+arg2,'M=D'])
     def writeInit(self):
-        pass
+        #SP=256
+        self.writeCommands(['@256','D=A','@SP','M=D'])
+        #call Sys.init
+        self.writeCall('Sys.init', '0')
 
 
     def writeLabel(self, label):
@@ -145,7 +149,7 @@ class CodeWriter(object):
         self.writeCommands(['('+self.label()+')'])
 
         self._label_num = self._label_num+1
-        
+
 
     def writeReturn(self):
         #FRAME=LCL

@@ -5,7 +5,11 @@ from constant import *
 class Parser(object):
     """docstring for ."""
     def __init__(self, filename):
-        f = open(filename, 'r')
+        try:
+            f = open(filename, 'r')
+        except BaseException as e:
+            print('打开文件出错')
+            break
         self._commands = f.readlines()#_commands是所有命令的list
         self._cur_command_line_num = 0#设置当前读取到的命令行数
         self._comment = re.compile('//.*$')#屏蔽注释的正则表达式

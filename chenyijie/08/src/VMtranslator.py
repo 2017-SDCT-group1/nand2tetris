@@ -1,13 +1,11 @@
 import Parser
 import codewriter
 from constant import *
+
+
 def main():
-    filename = input('Enter filename:')
-    parser = Parser.Parser(filename)
-    asmfile = filename.split('.',2)[0]+'.asm'
-    Codewriter = codewriter.CodeWriter(asmfile)
-    Codewriter.setfilename()
-    #Codewriter.writeInit()#多文件情况下输出初始化函数
+
+    #asmfile = filename.split('.',2)[0]+'.asm'
     while True:
         if parser.hasMorecommands():
             cur_command = parser.advance()
@@ -29,15 +27,28 @@ def main():
                 elif(command_type == C_FUNCTION):
                     Codewriter.witreFunction(parser.arg1(), parser.arg2())
                 elif(command_type == C_RETURN):
-                    pass
+                    Codewriter.writeReturn()
                 elif(command_type == C_CALL):
-                    Codewriter.witreCall(parser.arg1(), parser.arg2())
+                    Codewriter.writeCall(parser.arg1(), parser.arg2())
                 elif True:
                     print('ERROR AT COMMAND:', cur_command)
                     break
         else:
             break
 
-main()
+
+
+multfiles = False
+filename = input('Enter filename:')
+asmfile = input('Enter the ASM filename:')
+Codewriter = codewriter.CodeWriter(asmfile)
+Codewriter.setfilename()
+filelist=filename.split()
+Codewriter.writeInit()#输出初始化函数
+for vmfile in filelist:
+    parser = Parser.Parser(vmfile)
+    main()
+
+
 print('compile succeed!')
 enter = input('press Enter to continue.')
