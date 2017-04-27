@@ -9,7 +9,7 @@ class CodeWriter(object):
         self._eq_label_num = 1
         self._ne_label_num = 1
         self._label_num = 1
-
+        self.classname=''
 
     def setfilename(self):
         self._file = open(self._filename, 'w')
@@ -19,6 +19,8 @@ class CodeWriter(object):
         for n in commands:
             self._file.write(n+'\n')
             print(n)
+        self._file.write('\n')
+
 
 
     def eq_label(self):
@@ -34,12 +36,19 @@ class CodeWriter(object):
 
 
     def writeArithmetic(self, command):
+        command= command.strip(' ').strip('\r')
         if command == 'add':
-            self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','@SP','M=M-1','@SP','A=M','A=M','D=D+A','@SP','A=M','M=D','@SP','M=M+1'])
-            #                   取出栈顶元素                      索引到第二个元素                相加              放回栈顶             索引归位
+            self.writeCommands(
+                ['@SP', 'M=M-1', '@SP', 'A=M', 'D=M', '@SP', 'M=M-1', '@SP', 'A=M', 'A=M', 'D=D+A', '@SP', 'A=M', 'M=D',
+                 '@SP', 'M=M+1'])
+            #                 取出栈顶元素           索引到第二个元素              相加            放回栈顶         索引归位
+            return
         if command == 'sub':
-            self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','@SP','M=M-1','@SP','A=M','A=M','D=A-D','@SP','A=M','M=D','@SP','M=M+1'])
-            #                   取出栈顶元素                      索引到第二个元素                相减              放回栈顶             索引归位
+            self.writeCommands(
+                ['@SP', 'M=M-1', '@SP', 'A=M', 'D=M', '@SP', 'M=M-1', '@SP', 'A=M', 'A=M', 'D=A-D', '@SP', 'A=M', 'M=D',
+                 '@SP', 'M=M+1'])
+            #             取出栈顶元素         索引到第二个元素               相减              放回栈顶             索引归位
+            return
         if command == 'eq':#x=y
             self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','@SP','M=M-1','@SP','A=M','A=M','D=A-D',
             '@'+self.eq_label(),'D;JEQ','@SP','A=M','M=0',#如果相等跳转，否则设置为0
@@ -49,11 +58,14 @@ class CodeWriter(object):
             #让标签数增加，防止重复出现
             self._eq_label_num = self._eq_label_num + 1
             self._ne_label_num = self._ne_label_num + 1
-
+            return
         if command == 'neg':#-y
             self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','D=-D','M=D','@SP','M=M+1'])
+            return
+
         if command == 'not':
             self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','D=!D','M=D','@SP','M=M+1'])
+            return
 
         if command == 'gt':#x>y
             self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','@SP','M=M-1','@SP','A=M','A=M','D=A-D',
@@ -63,6 +75,7 @@ class CodeWriter(object):
             '('+self.ne_label()+')','@SP','M=M+1'])
             self._eq_label_num = self._eq_label_num + 1
             self._ne_label_num = self._ne_label_num + 1
+            return
         if command == 'lt':#x<y
             self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','@SP','M=M-1','@SP','A=M','A=M','D=A-D',
             '@'+self.eq_label(),'D;JLT','@SP','A=M','M=0',
@@ -71,43 +84,100 @@ class CodeWriter(object):
             '('+self.ne_label()+')','@SP','M=M+1'])
             self._eq_label_num = self._eq_label_num + 1
             self._ne_label_num = self._ne_label_num + 1
+            return
         if command == 'and':
-            self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','@SP','M=M-1','@SP','A=M','A=M','D=A&D','@SP','A=M','M=D','@SP','M=M+1'])
+            self.writeCommands(
+                ['@SP', 'M=M-1', '@SP', 'A=M', 'D=M', '@SP', 'M=M-1', '@SP', 'A=M', 'A=M', 'D=A&D', '@SP', 'A=M', 'M=D',
+                 '@SP', 'M=M+1'])
+            return
         if command == 'or':
-            self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','@SP','M=M-1','@SP','A=M','A=M','D=A|D','@SP','A=M','M=D','@SP','M=M+1'])
-
+            self.writeCommands(
+                ['@SP', 'M=M-1', '@SP', 'A=M', 'D=M', '@SP', 'M=M-1', '@SP', 'A=M', 'A=M', 'D=A|D', '@SP', 'A=M', 'M=D',
+                 '@SP', 'M=M+1'])
+            return
+        print('错误！---对应的命令:%s无输出！' % command)
+        raise(TypeError)
 
     def writePushPoP(self, commandtype, arg1, arg2):
         if commandtype == C_PUSH:
             if arg1 == 'constant':
                 self.writeCommands(['@'+arg2, 'D=A','@SP','A=M','M=D','@SP','M=M+1'])
+                return
             if arg1 == 'local':
                 self.writeCommands(['@'+arg2, 'D=A','@LCL','A=M','AD=D+A','D=M','@SP','A=M','M=D','@SP','M=M+1'])
+                return
             if arg1 == 'that':
                 self.writeCommands(['@'+arg2, 'D=A','@THAT','A=M','AD=D+A','D=M','@SP','A=M','M=D','@SP','M=M+1'])
+                return
             if arg1 == 'this':
                 self.writeCommands(['@'+arg2, 'D=A','@THIS','A=M','AD=D+A','D=M','@SP','A=M','M=D','@SP','M=M+1'])
+                return
             if arg1 == 'argument':
                 self.writeCommands(['@'+arg2, 'D=A','@ARG','A=M','AD=D+A','D=M','@SP','A=M','M=D','@SP','M=M+1'])
+                return
             if arg1 == 'temp':
                 self.writeCommands(['@'+arg2, 'D=A','@TEMP','A=M','AD=D+A','D=M','@SP','A=M','M=D','@SP','M=M+1'])
+                return
             if arg1 == 'static':
                 self.writeCommands(['@'+arg2, 'D=M','@SP','A=M','M=D','@SP','M=M+1'])
+                return
+            print(arg1+'  '+ arg2)
+            raise(TypeError)
         if commandtype == C_POP:
-            if arg1 == 'local':
-                self.writeCommands(['@SP','M=M-1','@'+arg2, 'D=A','@LCL','A=M','AD=D+A','@R13','M=D','@SP','A=M','D=M','@R13','A=M','M=D'])
-            if arg1 == 'argument':
-                self.writeCommands(['@SP','M=M-1','@'+arg2, 'D=A','@ARG','A=M','AD=D+A','@R13','M=D','@SP','A=M','D=M','@R13','A=M','M=D'])
-            if arg1 == 'this':
-                self.writeCommands(['@SP','M=M-1','@'+arg2, 'D=A','@THIS','A=M','AD=D+A','@R13','M=D','@SP','A=M','D=M','@R13','A=M','M=D'])
-            if arg1 == 'that':
-                self.writeCommands(['@SP','M=M-1','@'+arg2, 'D=A','@THAT','A=M','AD=D+A','@R13','M=D','@SP','A=M','D=M','@R13','A=M','M=D'])
-            if arg1 == 'temp':
-                self.writeCommands(['@SP','M=M-1','@'+arg2, 'D=A','@TEMP','A=M','AD=D+A','@R13','M=D','@SP','A=M','D=M','@R13','A=M','M=D'])
-            if arg1 == 'pointer':#为什么会不一样？
-                self.writeCommands(['@SP','M=M-1','@'+arg2, 'D=A','@3','AD=D+A','@R13','M=D','@SP','A=M','D=M','@R13','A=M','M=D'])
-            if arg1 == 'static':#为什么会不一样？
-                self.writeCommands(['@SP','M=M-1','@SP','A=M','D=M','@'+arg2,'M=D'])
+            if self.classname != 'sys' and self.classname !='Sys':
+                if arg1 == 'local':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + self.classname + arg2, 'D=A', '@LCL', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'argument':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + self.classname + arg2, 'D=A', '@ARG', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'this':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + self.classname + arg2, 'D=A', '@THIS', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'that':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + self.classname + arg2, 'D=A', '@THAT', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'temp':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + self.classname + arg2, 'D=A', '@TEMP', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'pointer':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + self.classname+ + arg2, 'D=A', '@R3', 'AD=D+A', '@R13', 'M=D', '@SP',
+                         'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'static':
+                    self.writeCommands(['@SP', 'M=M-1', '@SP', 'A=M', 'D=M', '@'+ self.classname + arg2, 'M=D'])
+            else:
+                if arg1 == 'local':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + arg2, 'D=A', '@LCL', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'argument':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + arg2, 'D=A', '@ARG', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'this':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + arg2, 'D=A', '@THIS', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'that':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + arg2, 'D=A', '@THAT', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'temp':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + arg2, 'D=A', '@TEMP', 'A=M', 'AD=D+A', '@R13', 'M=D',
+                         '@SP', 'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'pointer':
+                    self.writeCommands(
+                        ['@SP', 'M=M-1', '@' + arg2, 'D=A', '@R3', 'AD=D+A', '@R13', 'M=D', '@SP',
+                         'A=M', 'D=M', '@R13', 'A=M', 'M=D'])
+                if arg1 == 'static':
+                    self.writeCommands(['@SP', 'M=M-1', '@SP', 'A=M', 'D=M', '@' + arg2, 'M=D'])
     def writeInit(self):
         #SP=256
         self.writeCommands(['@256','D=A','@SP','M=D'])
@@ -140,7 +210,7 @@ class CodeWriter(object):
         #push THAT
         self.writeCommands(['@THAT','D=M','@SP','A=M','M=D','@SP','M=M+1'])
         #ARG=SP-n-5
-        self.writeCommands(['@'+str(5+NumArgs),'D=A','@SP','A=M','AD=A-D','@ARG','M=D'])
+        self.writeCommands(['@'+str(5+NumArgs),'D=A','@SP','A=M','D=A-D','@ARG','M=D'])
         #LCL=SP
         self.writeCommands(['@SP','D=M','@LCL','M=D'])
         #goto f
@@ -157,17 +227,18 @@ class CodeWriter(object):
         #RET=*(FRAME-5)
         self.writeCommands(['@5','A=D-A','D=M','@RET','M=D'])
         #*ARG=POP()
-        self.writeCommands(['@SP','M=M-1','@ARG','AD=M','@R15','M=D','@SP','A=M','D=M','@R15','A=M','D=M'])
+        self.writeCommands(['@SP','M=M-1','@ARG','AD=M','@R15','M=D','@SP','A=M','D=M','@R15','A=M','M=D'])
         #SP=ARG+1
         self.writeCommands(['@ARG','D=M','@SP','M=D+1'])
         #THAT=*(FRAME-1)
-        self.writeCommands(['@FRAME','D=M','D=D-1','@FRAME','M=D','A=D','D=M','@THAT','M=D'])
-        #THIS=*(FRAME-2)
-        self.writeCommands(['@FRAME','D=M','D=D-1','@FRAME','M=D','A=D','D=M','@THIS','M=D'])
-        #ARG=*(FRAME-3)
-        self.writeCommands(['@FRAME','D=M','D=D-1','@FRAME','M=D','A=D','D=M','@ARG','M=D'])
-        #LCL=*(FRAME-4)
-        self.writeCommands(['@FRAME','D=M','D=D-1','@FRAME','M=D','A=D','D=M','@LCL','M=D'])
+        self.writeCommands(['@FRAME', 'D=M', 'D=D-1', '@FRAME', 'M=D', 'A=D', 'D=M', '@THAT', 'M=D'])
+        # THIS=*(FRAME-2)
+        self.writeCommands(['@FRAME', 'D=M', 'D=D-1', '@FRAME', 'M=D', 'A=D', 'D=M', '@THIS', 'M=D'])
+        # ARG=*(FRAME-3)
+        self.writeCommands(['@FRAME', 'D=M', 'D=D-1', '@FRAME', 'M=D', 'A=D', 'D=M', '@ARG', 'M=D'])
+        # LCL=*(FRAME-4)
+        self.writeCommands(['@FRAME', 'D=M', 'D=D-1', '@FRAME', 'M=D', 'A=D', 'D=M', '@LCL', 'M=D'])
+
         #goto RET
         self.writeCommands(['@RET','A=M','0;JMP'])
 

@@ -4,8 +4,6 @@ from constant import *
 
 
 def main():
-
-    #asmfile = filename.split('.',2)[0]+'.asm'
     while True:
         if parser.hasMorecommands():
             cur_command = parser.advance()
@@ -47,8 +45,9 @@ filelist=filename.split()
 Codewriter.writeInit()#输出初始化函数
 for vmfile in filelist:
     parser = Parser.Parser(vmfile)
+    Codewriter.classname = vmfile.split('.', 2)[0]
     main()
 
 
 print('compile succeed!')
-enter = input('press Enter to continue.')
+#enter = input('press Enter to continue.')

@@ -9,7 +9,7 @@ class Parser(object):
             f = open(filename, 'r')
         except BaseException as e:
             print('打开文件出错')
-            break
+            
         self._commands = f.readlines()#_commands是所有命令的list
         self._cur_command_line_num = 0#设置当前读取到的命令行数
         self._comment = re.compile('//.*$')#屏蔽注释的正则表达式
@@ -19,6 +19,7 @@ class Parser(object):
                         'label':C_LABEL,    'goto':C_GOTO,      'if-goto':C_IF,
                         'push':C_PUSH,      'pop':C_POP,
                         'call':C_CALL,      'return':C_RETURN,  'function':C_FUNCTION}
+
     def hasMorecommands(self):
         if len(self._commands) > self._cur_command_line_num:
             return True
