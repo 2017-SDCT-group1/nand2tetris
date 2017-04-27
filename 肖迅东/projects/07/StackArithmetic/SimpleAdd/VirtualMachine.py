@@ -179,7 +179,7 @@ def main():
     outputf.write("(END)\n@END\n0;JMP");
     inputf.close()
     outputf.close()
-    print "Output written to " + outputfname
+    print ("Output written to " + outputfname)
 
 
 if __name__ == "__main__":
