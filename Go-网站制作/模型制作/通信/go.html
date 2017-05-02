@@ -1,0 +1,628 @@
+<html><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>GoGame</title>
+    <style type="text/css">
+        #mydiv{
+            text-align: center;
+        }
+        #buttonbar{
+            position:fixed;
+            top:70px;
+            right: 10px;
+            width: 100px;
+        }
+        #step{
+            width: 40px;
+        }
+        .title{
+            font-size: 30px;
+            font-family:"隶书"
+        }
+        .rule{
+            position:fixed;
+            top:70px;
+            left: 10px;
+            width: 100px;
+            font-size: 15px;
+            font-family:"楷书"
+        }
+        .rule1{
+            text-align: left;
+        }
+    </style>
+	<link id="bootstrap_221" rel="stylesheet" type="text/css" class="library" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script id="jquery_172" type="text/javascript" class="library" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <style>html, * {-webkit-user-select:text!important; -moz-user-select:text!important;}</style>
+	<script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+</head>
+<body>
+<br>
+<div id="mydiv">
+    <div class="title">围棋测试1.0</div>
+    <div class="rule well">
+        <span>功能小览</span>
+        <p class="rule1">1、黑子先走</p>
+        <p class="rule1">2、黑白双方轮流落子</p>
+        <p class="rule1">3、气数尽的棋子被提</p>
+        <p class="rule1">4、可查看本局历史</p>
+        <p class="rule1">5、查看本局记录时不可落子</p>
+    </div>
+    <canvas id="myCanvas" height="500" width="500">
+        your browser does not support the canvas tag
+    </canvas>
+    <div id="buttonbar" class="form-inline well">
+        <div>
+            <label>总步骤：</label>
+            <span id="totalstep">0</span>
+        </div>
+        <!--<button class="btn" onclick ="chooseside('black');">黑方</button>
+        <button class="btn" onclick ="chooseside('white');">白方</button>
+        <button class="btn" onclick ="chooseside('lookers');">围观</button>-->
+        <label>回顾步骤：</label>
+        <input type="text" name="step" id="step">
+        <button class="btn" onclick="viewstep(document.querySelector('#step').value);">回顾战局</button>
+        <button class="btn" onclick="continuego();">继续对弈</button>
+    </div>
+    <div>
+        <div id="blackinfo"></div>
+        <div id="whiteinfo"></div>
+		<a id="about" href = "http://runjs.cn/detail/qisnnfwi">源文件</a>
+    </div>
+</div>
+<!--<span id = "log">坐标</span>-->
+<script src="./js/canvasgo.js" type="text/javascript"></script>
+
+
+    	<style></style>
+<script>/**
+ * Created with JetBrains WebStorm.
+ * User: Administrator
+ * Date: 12-11-14
+ * Time: 下午1:10
+ * To change this template use File | Settings | File Templates.
+ */
+var total_width = 500,//画布宽
+    total_height = 500,//画布高
+    chessboard_start_x = 30,//棋盘起始x坐标
+    chessboard_start_y = 30,//棋盘起始y坐标
+    chessboard_end_x = total_width - 20,//棋盘结束x坐标
+    chessboard_end_y = total_height - 20,//棋盘结束y坐标
+    company_x = (chessboard_end_x - chessboard_start_x)/18,//单元格宽度
+    company_y = (chessboard_end_y - chessboard_start_y)/18;//单元格高度
+
+var step = 0 ;//当前步骤
+var viewstep = 0;//回看时的步骤
+var isview = false;//是否在查看过往步骤
+var string = 'abcdefghijklmnoprstuvwxyz';
+
+
+
+var initarr = function(arr){
+    for(var i = 0 ; i < 19 ; i++){
+        var arrj = new Array(19);
+        for(var j = 0 ; j < 19 ; j++){
+            arrj[j] = 0;
+        }
+        arr[i] = arrj;
+    }
+    return arr;
+}
+var black_arr = new Array(19);//新建一个二维数组，用于存储当前步骤的棋子布局
+black_arr = initarr(black_arr);
+
+var white_arr = new Array(19);//新建一个二维数组，用于存储当前步骤的棋子布局
+white_arr = initarr(white_arr);
+
+
+
+var obj=new Object();
+obj.record={};
+localStorage.setItem("gogame",JSON.stringify(obj));
+//存储本步骤的棋盘数组
+var savestep = function(){
+    obj=JSON.parse(localStorage.getItem("gogame"));
+    obj.record[step] = arr;
+    localStorage.setItem("gogame",JSON.stringify(obj));
+    step ++ ;
+    document.querySelector("#totalstep").innerHTML = step;
+}
+
+var arr = new Array(19);//新建一个二维数组，用于存储当前步骤的棋子布局
+for(var i = 0 ; i < 19 ; i++){
+    var arrj = new Array(19);
+    for(var j = 0 ; j < 19 ; j++){
+        arrj[j] = 0;
+    }
+    arr[i] = arrj;
+}
+
+var side = "black";//白方、黑方、围观群众
+
+//切换落子方
+var changeside = function(){
+    //切换黑白子
+    if(side == "white"){
+        side = "black";
+    }else if(side == "black"){
+        side = "white";
+    }
+}
+
+//预留方法，选择当前落子方
+var chooseside = function(choose_side){
+    if(choose_side == "lookers"){
+        $(document).unbind( "click" );
+        //bindclick();
+    } else {
+        side = choose_side;
+        $(document).unbind( "click" );
+        bindclick();
+    }
+}
+
+var piece_percentage = 0.8; //棋子占格子大小的百分比
+var piece_radius = (company_x-company_y >= 0)?(company_x*piece_percentage/2):(company_y*piece_percentage/2);//棋子大小
+
+//获取鼠标当前位置坐标
+$(document).bind('mousemove',function(e){
+    var canvasOffset = $(canvas).offset();//获取canvas的坐标
+    var canvasX = Math.floor(e.pageX - canvasOffset.left);
+    var canvasY = Math.floor(e.pageY - canvasOffset.top);
+    $("#log").text("e.pageX: " + e.pageX + ", e.pageY: " + e.pageY +",X:"+canvasX+",Y:"+canvasY);
+});
+
+//获取canvas画布
+var canvas=document.getElementById('myCanvas');
+canvas.height = total_height;
+canvas.width = total_width;
+var cxt=canvas.getContext('2d');
+
+//画棋盘
+var drawBoard = function(){
+    //每次重画棋盘之前清除canvas
+    cxt.clearRect(0, 0, canvas.width, canvas.height);
+
+    cxt.beginPath();
+    //描绘横线
+    for(var i = 0 ; i < 19 ; i++){
+        var start_company_x = chessboard_start_x;
+        var start_company_y = chessboard_start_y + company_y*i;
+        var end_company_x = chessboard_end_x;
+        var end_company_y = chessboard_start_y + company_y*i;
+        cxt.lineWidth = 2;
+        cxt.moveTo(start_company_x,start_company_y);
+        cxt.lineTo(end_company_x,end_company_y);
+    }
+
+    //描绘竖线
+    for(var j = 0 ; j < 19 ; j++){
+        var start_company_x = chessboard_start_x + company_x*j;
+        var start_company_y = chessboard_start_y;
+        var end_company_x = chessboard_start_x + company_x*j;
+        var end_company_y = chessboard_end_y;
+        cxt.moveTo(start_company_x,start_company_y);
+        cxt.lineTo(end_company_x,end_company_y);
+    }
+    cxt.stroke();
+
+    //画九星
+    for(var i = 0 ; i < 3 ; i ++ ){
+        var star_y = chessboard_start_y + company_y*(i*6+3);
+        for(var j = 0 ; j < 3 ; j++){
+            var star_x = chessboard_start_x + company_y*(j*6+3);
+            cxt.fillStyle="black";
+            cxt.beginPath();
+            cxt.arc(star_x, star_y, 4, 0, Math.PI*2, false);
+            cxt.stroke();
+            cxt.fill();
+        }
+    }
+}
+
+//根据arr数组画棋子
+var drawPiece = function(){
+    for(var i in arr){
+        for(var j in arr[i]){
+            if(arr[i][j] == 1){
+                //画黑子
+                var start_x = i*company_x + chessboard_start_x;//点击的x坐标起始位置
+                var start_y = j*company_y + chessboard_start_y;//点击的y坐标起始位置
+
+                cxt.fillStyle= "black";
+                cxt.beginPath();
+                cxt.arc(start_x, start_y, piece_radius, 0, Math.PI*2, false);
+                cxt.stroke();
+                cxt.fill();
+            } else if(arr[i][j] == 2){
+                //画白子
+                var start_x = i*company_x + chessboard_start_x;//点击的x坐标起始位置
+                var start_y = j*company_y + chessboard_start_y;//点击的y坐标起始位置
+
+                cxt.fillStyle= "white";
+                cxt.beginPath();
+                cxt.arc(start_x, start_y, piece_radius, 0, Math.PI*2, false);
+                cxt.stroke();
+                cxt.fill();
+            }
+        }
+    }
+}
+
+//检查该落子是否可以提子，可以就提子
+var checkPiece = function(coordinate_x,coordinate_y){
+    var myside = 0;
+    var otherside = 0;
+    var iskill = false;
+    if(side == "black"){
+        myside = 1;
+        otherside = 2;
+    }else if(side == "white"){
+        myside = 2;
+        otherside = 1;
+    }
+
+    //如果该子上方是对方棋子或者为第一行
+    if((coordinate_y>0 && arr[coordinate_x][coordinate_y-1] == otherside)){
+        if(checkOthersidePiece(coordinate_x,coordinate_y-1,otherside)){
+            iskill = true;
+        }
+    }
+    //如果该子左方是对方棋子或者为第一行
+    if((coordinate_x>0 && arr[coordinate_x-1][coordinate_y] == otherside)){
+        if(checkOthersidePiece(coordinate_x-1,coordinate_y,otherside)){
+            iskill = true;
+        }
+    }
+    //如果该子右方是对方棋子或者为第十九行
+    if((coordinate_x<18 && arr[coordinate_x+1][coordinate_y] == otherside)){
+        if(checkOthersidePiece(coordinate_x+1,coordinate_y,otherside)){
+            iskill = true;
+        }
+    }
+    //如果该子下方是对方棋子或者为第十九行
+    if((coordinate_y<18 && arr[coordinate_x][coordinate_y+1] == otherside)){
+        if(checkOthersidePiece(coordinate_x,coordinate_y+1,otherside)){
+            iskill = true;
+        }
+    }
+
+    //如果有提掉对方棋子
+    if(iskill == true){
+
+    //监测本子落子后己方棋子是否会被提
+    }else {
+        //alert(JSON.stringify(arr));
+        checkOthersidePiece(coordinate_x,coordinate_y,myside);
+    }
+}
+
+/**
+ * 检查该子是否会被提,若能被提，提子
+ * @param coordinate_x （该子x坐标）
+ * @param coordinate_y （该子y坐标）
+ * @param side 1(黑子) or 2（白子）
+ */
+var checkOthersidePiece = function(coordinate_x,coordinate_y,side){
+    //新建一个二维数组，用于排放与该子连接的本方棋子
+    var connection_arr = new Array(19);
+    for(var i = 0 ; i < 19 ; i++){
+        var connection_arrj = new Array(19);
+        for(var j = 0 ; j < 19 ; j++){
+            connection_arrj[j] = 0;
+        }
+        connection_arr[i] = connection_arrj;
+    }
+    var isdead = true;//是否被提，默认为被提
+    var deadcount = 0;
+
+    //alert("1111"+JSON.stringify(connection_arr)+coordinate_x+":"+coordinate_y);
+    //将所有与本子相连的同色棋子组成本数组
+    connection_arr = setconnection_arr(connection_arr,coordinate_x,coordinate_y,side);
+    //alert("2222"+JSON.stringify(connection_arr));
+
+    //遍历该connection_arr数组，若有3则，不死
+    for(var i in connection_arr){
+        for(var j in connection_arr[i]){
+            if(connection_arr[i][j] == 3){
+                //console.log("i+j:"+i+"+"+j);
+                isdead = false;
+            }
+        }
+    }
+
+    //如果会被提，则提子
+    if(isdead == true){
+        for(var i in connection_arr){
+            for(var j in connection_arr[i]){
+                if(connection_arr[i][j] == side){
+                    arr[i][j] = 0;
+                    deadcount++;
+
+                    //将connection_arr中标志位为side的数组放入his_arr中供提子限制规则查询使用
+                    if(side == 1){
+                        black_arr[i][j] = side;
+                    }else if(side == 2){
+                        white_arr[i][j] = side;
+                    }
+
+                }
+            }
+        }
+    }
+
+
+
+
+    console.log("isdead:"+isdead+ ":提子数量:"+ deadcount);
+    //若有提子返回true
+    if(deadcount > 0){
+        return true;
+    }else {
+        return false;
+    }
+}
+
+/**
+ * 递归组织连接的此方棋子
+ * @param connection_arr
+ * @param coordinate_x
+ * @param coordinate_y
+ * @param side
+ * @return {*}
+ */
+var setconnection_arr = function(connection_arr,coordinate_x,coordinate_y,side){
+    //设置数组为本块相连的
+    if(connection_arr[coordinate_x][coordinate_y] != side && arr[coordinate_x][coordinate_y] == side){
+        connection_arr[coordinate_x][coordinate_y] = side;
+        console.log(coordinate_x + "====" + coordinate_y);
+        //如果该黑子上方是白子并且不为第一行
+        if(coordinate_y>0 && arr[coordinate_x][coordinate_y-1] == side){
+            connection_arr = setconnection_arr(connection_arr,coordinate_x,coordinate_y-1,side);
+        }else if(coordinate_y>0 && arr[coordinate_x][coordinate_y-1] == 0){
+            connection_arr[coordinate_x][coordinate_y-1] = 3;
+        }
+        //如果该黑子左方是白子或者为第一行
+        if(coordinate_x>0 && arr[coordinate_x-1][coordinate_y] == side){
+            connection_arr = setconnection_arr(connection_arr,coordinate_x-1,coordinate_y,side);
+        }else if(coordinate_x>0 && arr[coordinate_x-1][coordinate_y] == 0){
+            connection_arr[coordinate_x-1][coordinate_y] = 3;
+        }
+        //如果该黑子右方是白子或者为第十九行
+        if(coordinate_x<18 && arr[coordinate_x+1][coordinate_y] == side){
+            connection_arr = setconnection_arr(connection_arr,coordinate_x+1,coordinate_y,side);
+        }else if(coordinate_x<18 && arr[coordinate_x+1][coordinate_y] == 0){
+            connection_arr[coordinate_x+1][coordinate_y] = 3;
+        }
+        //如果该黑子下方是白子或者为第十九行
+        if(coordinate_y<18 && arr[coordinate_x][coordinate_y+1] == side){
+            connection_arr = setconnection_arr(connection_arr,coordinate_x,coordinate_y+1,side);
+        }else if(coordinate_y<18 && arr[coordinate_x][coordinate_y+1] == 0){
+            connection_arr[coordinate_x][coordinate_y+1] = 3;
+        }
+    }
+
+    //console.log("x:"+coordinate_x+"y:"+coordinate_y);
+    return connection_arr;
+}
+
+//显示被吃的子
+var showkilled = function(){
+    var blackinfo = "";
+    for(var i = 0 ; i < 19 ; i++ ){
+        for(var j = 0 ; j < 19 ; j++){
+            if(black_arr[i][j] == 1){
+                blackinfo = blackinfo + "[" + (i+1) + ":" + (j+1) + "],";
+            }
+        }
+    }
+
+    var whiteinfo = "";
+    for(var i = 0 ; i < 19 ; i++ ){
+        for(var j = 0 ; j < 19 ; j++){
+            if(white_arr[i][j] == 2){
+                whiteinfo = whiteinfo + "[" + (i+1) + "," + (j+1) + "],";
+            }
+        }
+    }
+
+    if(blackinfo != ""){
+        blackinfo = "黑方被提子:" + blackinfo
+    }
+    if(whiteinfo != ""){
+        whiteinfo = "白方被提子:" + whiteinfo
+    }
+    console.log(blackinfo+"<br>"+whiteinfo);
+    $("#blackinfo").html(blackinfo);
+    $("#whiteinfo").html(whiteinfo);
+}
+
+
+//添加点击触发事件
+var bindclick = function(){
+    $(document).bind('click',function(e){
+        var canvasOffset = $(canvas).offset();//获取canvas的坐标
+        var canvasX = Math.floor(e.pageX - canvasOffset.left);
+        var canvasY = Math.floor(e.pageY - canvasOffset.top);
+        var click_x = parseInt((canvasX-(chessboard_start_x-company_x/2))/company_x)+1;//点击的x坐标
+        var click_y = parseInt((canvasY-(chessboard_start_y-company_y/2))/company_y)+1;//点击的y坐标
+        click_x = (click_x >= 1 && click_x <= 19)?click_x:-10;
+        click_y = (click_y >= 1 && click_y <= 19)?click_y:-10;
+        if(click_x >= 1 && click_x <= 19 && click_y >= 1 && click_y <= 19){
+
+            //如果此处没有棋子
+            if(arr[click_x-1][click_y-1] == 0){
+                console.log(step +  ":" +viewstep);
+                if(isview == false){
+                    /*//填入棋子
+                    if(side == "black"){
+                        arr[click_x-1][click_y-1] = 1;
+                    } else if (side == "white"){
+                        arr[click_x-1][click_y-1] = 2;
+                    }*/
+
+                    //判断是否在不可着子区域
+                    if(side == "black"){
+                        if(black_arr[click_x-1][click_y-1] == 1){
+                            alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
+                        }else{
+                            arr[click_x-1][click_y-1] = 1;
+                            sendmsg('B['+string.substr(click_x-1, 1)+string.substr(click_y-1, 1)+']');
+
+                            //将监测是否可以提子的数组置为19*19的0数组
+                            black_arr = initarr(black_arr);
+
+                            //检查是否可以提子，可以提子就提子
+                            checkPiece(click_x-1,click_y-1);
+
+                            showkilled();
+
+                            //存储步骤
+                            savestep();
+
+                            //画棋盘
+                            drawBoard();
+                            //画棋子
+                            drawPiece();
+                            //换种颜色的棋子
+                            changeside();
+
+                        }
+                    } else if (side == "white"){
+                        if(white_arr[click_x-1][click_y-1] == 2){
+                            alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
+                        }else{
+                            arr[click_x-1][click_y-1] = 2;
+                            sendmsg('B['+string.substr(click_x-1, 1)+string.substr(click_y-1, 1)+']');
+                            //将监测是否可以提子的数组置为19*19的0数组
+                            white_arr = initarr(white_arr);
+
+                            //检查是否可以提子，可以提子就提子
+                            checkPiece(click_x-1,click_y-1);
+
+                            showkilled();
+
+                            //存储步骤
+                            savestep();
+
+                            //画棋盘
+                            drawBoard();
+                            //画棋子
+                            drawPiece();
+                            //换种颜色的棋子
+                            changeside();
+                        }
+                    }
+
+
+                }else{
+                    //alert("落子无悔大丈夫，请回到当前步骤落子！");
+                    alert("现在是回顾战局模式，请回到对弈模式落子！！！");
+                }
+
+            }else{
+                alert("此处已有棋子，不可着子！");
+            }
+
+        }
+
+    });
+}
+
+//进入回顾战局模式
+var viewstep = function(thisstep){
+    if(!isNaN(parseInt(thisstep)) && parseInt(thisstep) >= 1){
+        thisstep = thisstep -1;
+
+        if(parseInt(thisstep) < step){
+            getstep(thisstep);
+            isview = true;
+        }else{
+            alert("所输步骤超出总步骤，请重输！！！");
+        }
+
+    }else{
+        alert("请输入回顾的步骤，步骤必须为整数！！！");
+    }
+
+}
+
+//继续对弈
+var continuego = function(){
+    isview = false;
+    getstep(step-1);
+}
+
+//获取该步骤的棋局
+var getstep = function(thisstep){
+
+    obj=JSON.parse(localStorage.getItem("gogame"));
+
+    if(parseInt(thisstep) < step){
+        arr = obj.record[thisstep] ;
+    }else{
+        alert("超出总步骤");
+    }
+
+    //画棋盘
+    drawBoard();
+    //画棋子
+    drawPiece();
+    //设置下一步的落子方
+    if(step%2 == 0){
+        side = "black";
+    }else{
+        side = "white";
+    }
+}
+
+var socket = io.connect();
+
+$(document).ready(function() {
+
+//初始化页面canvas
+//绑定点击事件
+bindclick();
+//画棋盘
+drawBoard();
+
+
+
+socket.on('connect', function() {
+            //socket.emit('connect_event', {data: '连接成功'});
+			console.log('连接成功');
+        })
+		
+socket.on('server_response', function(msg) {
+		console.log("收到回应"+msg.data);
+		var letter_x = msg.data.charAt(2);
+		var letter_y = msg.data.charAt(3);
+		var n_x = string.indexOf(letter_x);
+		var n_y = string.indexOf(letter_y);
+        arr[n_x][n_y] = 2;
+        console.log(n_x,' ',n_y);
+        white_arr = initarr(white_arr);
+        //检查是否可以提子，可以提子就提子
+        checkPiece(n_x,n_y);
+
+        showkilled();
+
+        //存储步骤
+        savestep();
+
+        //画棋盘
+        drawBoard();
+        //画棋子
+        drawPiece();
+        //换种颜色的棋子
+        changeside();
+
+
+		});
+
+});
+function sendmsg(msg){
+    socket.emit('client_event', {data: msg});
+}
+</script>
+	
+<!-- Generated by RunJS (Tue May 02 13:02:20 CST 2017) 0ms --></body></html>
