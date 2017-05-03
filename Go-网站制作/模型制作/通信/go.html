@@ -22,12 +22,28 @@
             position:fixed;
             top:70px;
             left: 10px;
-            width: 100px;
+            width: 120px;
             font-size: 15px;
             font-family:"楷书"
         }
         .rule1{
             text-align: left;
+        }
+        .message{
+            position: absolute;
+            left : 150px;
+            top : 100px;
+            width: 200px;
+            height: 400px;
+            float: left;
+            font-family: "微软雅黑 Light";
+            font-size: 15px;
+            border-width:thin;
+            border-style:solid;
+        }
+        .info{
+            font-family: "黑体";
+            font-size: 25px;
         }
     </style>
 	<link id="bootstrap_221" rel="stylesheet" type="text/css" class="library" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -39,6 +55,29 @@
 <br>
 <div id="mydiv">
     <div class="title">围棋测试1.0</div>
+    <div>
+        <form id="user_data"  target="rfFrame">
+            用户ID:
+            <input type = "text" name="user_id" id="user_id">
+            <br>
+            游戏ID:
+            <input type = "text" name="game_id" id="game_id">
+            <br>
+            <input type="submit" value="创建或加入游戏">
+        </form>
+    </div>
+    <div id="gameinfo" class ="info">
+
+    </div>
+
+    <div id="message" class="message">
+        收到的消息
+        <div id = "gamemessage">
+
+        </div>
+    </div>
+    <iframe id="rfFrame" name="rfFrame" src="about:blank" style="display:none;"></iframe>
+
     <div class="rule well">
         <span>功能小览</span>
         <p class="rule1">1、黑子先走</p>
@@ -47,6 +86,7 @@
         <p class="rule1">4、可查看本局历史</p>
         <p class="rule1">5、查看本局记录时不可落子</p>
     </div>
+
     <canvas id="myCanvas" height="500" width="500">
         your browser does not support the canvas tag
     </canvas>
@@ -66,14 +106,25 @@
     <div>
         <div id="blackinfo"></div>
         <div id="whiteinfo"></div>
-		<a id="about" href = "http://runjs.cn/detail/qisnnfwi">源文件</a>
+        <form id="sendmessage" target="rfFrame">
+            <input type="text" name = "game_message" id = "game_message">
+            <input type="submit" value = "发送消息">
+        </form>
+        <div id="introduce">
+            <p>说明</p>
+            <p>本网站已经提供了对战功能，要求两名玩家输入不同的用户名和相同的游戏ID即可开始对战</p>
+            <p>对战记录,其他功能在开发中</p>
+        </div>
+        <a id="about" href = "http://runjs.cn/detail/qisnnfwi">源文件</a>
+        <div id="log"></div>
     </div>
 </div>
 <!--<span id = "log">坐标</span>-->
+
+<!--
 <script src="./js/canvasgo.js" type="text/javascript"></script>
+-->
 
-
-    	<style></style>
 <script>/**
  * Created with JetBrains WebStorm.
  * User: Administrator
@@ -81,6 +132,8 @@
  * Time: 下午1:10
  * To change this template use File | Settings | File Templates.
  */
+
+
 var total_width = 500,//画布宽
     total_height = 500,//画布高
     chessboard_start_x = 30,//棋盘起始x坐标
@@ -94,8 +147,9 @@ var step = 0 ;//当前步骤
 var viewstep = 0;//回看时的步骤
 var isview = false;//是否在查看过往步骤
 var string = 'abcdefghijklmnoprstuvwxyz';
-
-
+var game_started = 0;
+var myside; // 记录我方黑白棋状态
+var canplace = false;
 
 var initarr = function(arr){
     for(var i = 0 ; i < 19 ; i++){
@@ -447,32 +501,37 @@ var bindclick = function(){
         var click_y = parseInt((canvasY-(chessboard_start_y-company_y/2))/company_y)+1;//点击的y坐标
         click_x = (click_x >= 1 && click_x <= 19)?click_x:-10;
         click_y = (click_y >= 1 && click_y <= 19)?click_y:-10;
-        if(click_x >= 1 && click_x <= 19 && click_y >= 1 && click_y <= 19){
+        if(game_started == 1) {
+            if (click_x >= 1 && click_x <= 19 && click_y >= 1 && click_y <= 19) {
+                if (canplace){
 
-            //如果此处没有棋子
-            if(arr[click_x-1][click_y-1] == 0){
-                console.log(step +  ":" +viewstep);
-                if(isview == false){
-                    /*//填入棋子
+
+                    //如果此处没有棋子
+                    if (arr[click_x - 1][click_y - 1] == 0) {
+                    console.log(step + ":" + viewstep);
+                    if (isview == false) {
+                        /*//填入棋子
                     if(side == "black"){
                         arr[click_x-1][click_y-1] = 1;
                     } else if (side == "white"){
                         arr[click_x-1][click_y-1] = 2;
                     }*/
 
-                    //判断是否在不可着子区域
-                    if(side == "black"){
-                        if(black_arr[click_x-1][click_y-1] == 1){
+                        //判断是否在不可着子区域
+                    if(myside == "black"){
+                        if(black_arr [click_x-1] [click_y - 1] == 1){
                             alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
                         }else{
-                            arr[click_x-1][click_y-1] = 1;
-                            sendmsg('B['+string.substr(click_x-1, 1)+string.substr(click_y-1, 1)+']');
+                            arr [click_x-1] [click_y-1] = 1;
+
+                            sendmsg('B['+string.substr(click_x -1, 1)+string.substr(click_y - 1, 1)+']');
 
                             //将监测是否可以提子的数组置为19*19的0数组
-                            black_arr = initarr(black_arr);
+                            black_arr = initarr(
+                                black_arr);
 
                             //检查是否可以提子，可以提子就提子
-                            checkPiece(click_x-1,click_y-1);
+                            checkPiece(click_x-1, click_y-1);
 
                             showkilled();
 
@@ -485,19 +544,24 @@ var bindclick = function(){
                             drawPiece();
                             //换种颜色的棋子
                             changeside();
+                            canplace = false;
 
                         }
-                    } else if (side == "white"){
+                    }
+                    else if (myside == "white"){
                         if(white_arr[click_x-1][click_y-1] == 2){
-                            alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
+                            alert(
+                                "根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
                         }else{
-                            arr[click_x-1][click_y-1] = 2;
-                            sendmsg('B['+string.substr(click_x-1, 1)+string.substr(click_y-1, 1)+']');
+                            arr[click_x-1][
+                            click_y-1] = 2;
+                            sendmsg('W['+ string.substr(click_x-1, 1)+string.substr(click_y -1, 1)+']');
                             //将监测是否可以提子的数组置为19*19的0数组
-                            white_arr = initarr(white_arr);
+                            white_arr = initarr(
+                                white_arr);
 
                             //检查是否可以提子，可以提子就提子
-                            checkPiece(click_x-1,click_y-1);
+                            checkPiece(click_x-1, click_y-1);
 
                             showkilled();
 
@@ -510,22 +574,33 @@ var bindclick = function(){
                             drawPiece();
                             //换种颜色的棋子
                             changeside();
+                            canplace = false;
                         }
                     }
 
 
                 }else{
-                    //alert("落子无悔大丈夫，请回到当前步骤落子！");
+                        //alert("落子无悔大丈夫，请回到当前步骤落子！");
                     alert("现在是回顾战局模式，请回到对弈模式落子！！！");
                 }
 
-            }else{
-                alert("此处已有棋子，不可着子！");
-            }
+            } else{
 
+                alert("此处已有棋子，不可着子！");
+                }
         }
 
+        }
+        }
+        else
+        {
+            if (click_x >= 1 && click_x <= 19 && click_y >= 1 && click_y <= 19)
+            {
+                alert('游戏尚未开始!');
+            }
+        }
     });
+
 }
 
 //进入回顾战局模式
@@ -587,20 +662,92 @@ drawBoard();
 
 
 
+
+
+
+
 socket.on('connect', function() {
             //socket.emit('connect_event', {data: '连接成功'});
 			console.log('连接成功');
-        })
+        });
 		
 socket.on('server_response', function(msg) {
 		console.log("收到回应"+msg.data);
-		var letter_x = msg.data.charAt(2);
-		var letter_y = msg.data.charAt(3);
-		var n_x = string.indexOf(letter_x);
-		var n_y = string.indexOf(letter_y);
-        arr[n_x][n_y] = 2;
+		});
+
+});
+
+socket.on('game_start', function (msg) {
+    console.log('game start message');
+    console.log(msg);
+    if (msg.user_id == $('#user_id').val() && msg.begin == 0 && msg.game_id == $('#game_id').val())
+    {
+        console.log('成功创建游戏');
+        alert('成功创建游戏，ID为:'+msg.game_id);
+        myside = msg.side;
+        game_started = 0;
+    }
+    if(msg.game_id == $('#game_id').val() && msg.user_id != $('#user_id').val() && msg.begin == 1)
+    {
+        alert('另一个用户成功连接,游戏开始!');
+
+        $('#gameinfo').text($('#user_id').val() + '(黑)和' + msg.user_id +'(白)的对决');0
+
+        //myside = msg.side;
+        game_started = 1;
+        canplace = true;
+    }
+    if(msg.game_id == $('#game_id').val() && msg.user_id == $('#user_id').val() && msg.begin == 1)
+    {
+        alert('成功连接游戏,游戏开始!');
+        $('#gameinfo').text(msg.emeny + '(黑)和' + $('#user_id').val() +'(白)的对决');
+        myside = msg.side;
+        game_started = 1;
+    }
+
+    }
+);
+
+socket.on('start_error', function (msg) {
+    if (msg.game_id == $('#game_id').val())
+    {
+        alert('加入游戏失败,该游戏ID已被使用');
+    }
+
+});
+
+
+
+socket.on('play_game_client',function (msg) {
+    //alert('接受到信息');
+    console.log(msg)
+    game = eval('new Map('+msg.data+')');
+    console.log(game)
+    if (game.get('game_id') == $('#game_id').val() && game.get('user_id') != $('#user_id').val())
+    {
+        var place = game.get('msg');
+        var letter_x = place.charAt(2);
+        var letter_y = place.charAt(3);
+        var n_x = string.indexOf(letter_x);
+        var n_y = string.indexOf(letter_y);
+        if(place.charAt(0)=='B')
+        {
+            arr[n_x][n_y] = 1;
+        }
+        else
+        {
+            arr[n_x][n_y] = 2;
+        }
         console.log(n_x,' ',n_y);
-        white_arr = initarr(white_arr);
+        if(place.charAt(0)=='B')
+        {
+            black_arr = initarr(black_arr);
+        }
+        else
+        {
+            white_arr = initarr(white_arr);
+        }
+
         //检查是否可以提子，可以提子就提子
         checkPiece(n_x,n_y);
 
@@ -614,15 +761,49 @@ socket.on('server_response', function(msg) {
         //画棋子
         drawPiece();
         //换种颜色的棋子
-        changeside();
+        //changeside();
+        canplace = true;
+    }
+    }
+)
+
+socket.on('message', function (msg) {
+    console.log('recv msg');
+    if (msg.game_id == $('#game_id').val())
+    {
+        setmessage(msg.user_id+':' +msg.message);
+    }
+})
 
 
-		});
 
-});
-function sendmsg(msg){
-    socket.emit('client_event', {data: msg});
-}
+    function sendmsg(msg){
+        console.log('send msg');
+        socket.emit('play_game_server', {data: '{\'user_id\':\'' + $('#user_id').val() + '\',\'game_id\':\''+ $('#game_id').val() + '\',\'msg\':\''+msg+'\'}'});
+    }
+
+
+    $('form#user_data').submit(function submit_id(){
+        console.log($('#user_id').val()+ $('#game_id').val());
+        socket.emit('game_start', {data: '{\'user_id\':\'' + $('#user_id').val() + '\',\'game_id\':\''+ $('#game_id').val()+'\'}'});
+    });
+
+    $('form#sendmessage').submit(
+        function submit_message() {
+            socket.emit('message', {data: '{\'user_id\':\'' + $('#user_id').val() + '\',\'game_id\':\''+ $('#game_id').val()+'\',\'message\':\''+$('#game_message').val()+'\'}'});
+
+        }
+    )
+
+    function setmessage(msg){
+        $('div#gamemessage').append('<br>' + $('<div/>').text(msg).html());
+        console.log('set msg:'+msg)
+    }
+
+
+
+
+
 </script>
 	
 <!-- Generated by RunJS (Tue May 02 13:02:20 CST 2017) 0ms --></body></html>
