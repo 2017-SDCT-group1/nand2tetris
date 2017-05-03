@@ -41,6 +41,7 @@
             border-width:thin;
             border-style:solid;
         }
+
         .info{
             font-family: "黑体";
             font-size: 25px;
@@ -56,6 +57,7 @@
 <div id="mydiv">
     <div class="title">围棋测试1.0</div>
     <div>
+        <!--TODO 表单样式可以改CSS使其更美观 -->
         <form id="user_data"  target="rfFrame">
             用户ID:
             <input type = "text" name="user_id" id="user_id">
@@ -66,10 +68,10 @@
             <input type="submit" value="创建或加入游戏">
         </form>
     </div>
-    <div id="gameinfo" class ="info">
+    <!--显示对局信息 -->
+    <div id="gameinfo" class ="info"></div>
 
-    </div>
-
+    <!-- TODO 显示对局消息 要用更好的方法实现-->
     <div id="message" class="message">
         收到的消息
         <div id = "gamemessage">
@@ -838,8 +840,9 @@ socket.on('play_game_client',function (msg) {
     }
 )
 
+//收到message
 socket.on('message', function (msg) {
-
+//只有game_id一致时才显示
     if (msg.game_id == $('#game_id').val())
     {
         setmessage(msg.user_id+':' +msg.message);
@@ -847,18 +850,19 @@ socket.on('message', function (msg) {
 })
 
 
-
+    //发送落字消息
     function sendmsg(msg){
         console.log('send msg');
         socket.emit('play_game_server', {data: '{\'user_id\':\'' + $('#user_id').val() + '\',\'game_id\':\''+ $('#game_id').val() + '\',\'msg\':\''+msg+'\'}'});
     }
 
-
+    //发送用户id和对局id
     $('form#user_data').submit(function submit_id(){
         console.log($('#user_id').val()+ $('#game_id').val());
         socket.emit('game_start', {data: '{\'user_id\':\'' + $('#user_id').val() + '\',\'game_id\':\''+ $('#game_id').val()+'\'}'});
     });
 
+    //发送消息
     $('form#sendmessage').submit(
         function submit_message() {
             socket.emit('message', {data: '{\'user_id\':\'' + $('#user_id').val() + '\',\'game_id\':\''+ $('#game_id').val()+'\',\'message\':\''+$('#game_message').val()+'\'}'});
@@ -866,6 +870,8 @@ socket.on('message', function (msg) {
         }
     )
 
+    //显示收到的消息，可以用更美观的方式实现
+    //TODO
     function setmessage(msg){
         $('div#gamemessage').append('<br>' + $('<div/>').text(msg).html());
 
