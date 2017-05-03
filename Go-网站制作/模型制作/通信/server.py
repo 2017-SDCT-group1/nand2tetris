@@ -39,6 +39,7 @@ def game_start_msg(msg):
         if gamemain.joingame(a):
             emit('game_start', {'user_id': a['user_id'], 'game_id': a['game_id'], 'begin': '1', 'side': 'white',\
                                 'emeny': gamemain.get_emeny(a)}, broadcast=True)
+
             gamemain.create_sgf({'game_id':a['game_id'], 'PB': gamemain.get_emeny(a), 'PW':a['user_id']})
         else:
             emit('start_error',{'game_id': a['game_id']})
@@ -74,6 +75,9 @@ def tojson(a):
     res = res[0:-1]
     res += ']'
     return res
+
+def log(msg):
+    print(msg)
 
 
 if __name__ == '__main__':

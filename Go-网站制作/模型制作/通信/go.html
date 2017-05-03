@@ -148,8 +148,9 @@ var viewstep = 0;//回看时的步骤
 var isview = false;//是否在查看过往步骤
 var string = 'abcdefghijklmnoprstuvwxyz';
 var game_started = 0;
-var myside; // 记录我方黑白棋状态
+var side_me; // 记录我方黑白棋状态
 var canplace = false;
+var now_side;//设置当前下棋的一方
 
 var initarr = function(arr){
     for(var i = 0 ; i < 19 ; i++){
@@ -307,14 +308,17 @@ var checkPiece = function(coordinate_x,coordinate_y){
     var myside = 0;
     var otherside = 0;
     var iskill = false;
-    if(side == "black"){
+    if(now_side == "black")
+    {
         myside = 1;
         otherside = 2;
-    }else if(side == "white"){
+    }
+    else if(now_side == "white")
+    {
         myside = 2;
         otherside = 1;
     }
-
+    console.log('myside:',myside,'otherside:',otherside)
     //如果该子上方是对方棋子或者为第一行
     if((coordinate_y>0 && arr[coordinate_x][coordinate_y-1] == otherside)){
         if(checkOthersidePiece(coordinate_x,coordinate_y-1,otherside)){
@@ -344,7 +348,9 @@ var checkPiece = function(coordinate_x,coordinate_y){
     if(iskill == true){
 
     //监测本子落子后己方棋子是否会被提
-    }else {
+    }
+    else
+    {
         //alert(JSON.stringify(arr));
         checkOthersidePiece(coordinate_x,coordinate_y,myside);
     }
@@ -356,12 +362,14 @@ var checkPiece = function(coordinate_x,coordinate_y){
  * @param coordinate_y （该子y坐标）
  * @param side 1(黑子) or 2（白子）
  */
-var checkOthersidePiece = function(coordinate_x,coordinate_y,side){
+var checkOthersidePiece = function(coordinate_x,coordinate_y,theside){
     //新建一个二维数组，用于排放与该子连接的本方棋子
     var connection_arr = new Array(19);
-    for(var i = 0 ; i < 19 ; i++){
+    for(var i = 0 ; i < 19 ; i++)
+    {
         var connection_arrj = new Array(19);
-        for(var j = 0 ; j < 19 ; j++){
+        for(var j = 0 ; j < 19 ; j++)
+        {
             connection_arrj[j] = 0;
         }
         connection_arr[i] = connection_arrj;
@@ -371,7 +379,7 @@ var checkOthersidePiece = function(coordinate_x,coordinate_y,side){
 
     //alert("1111"+JSON.stringify(connection_arr)+coordinate_x+":"+coordinate_y);
     //将所有与本子相连的同色棋子组成本数组
-    connection_arr = setconnection_arr(connection_arr,coordinate_x,coordinate_y,side);
+    connection_arr = setconnection_arr(connection_arr,coordinate_x,coordinate_y,theside);
     //alert("2222"+JSON.stringify(connection_arr));
 
     //遍历该connection_arr数组，若有3则，不死
@@ -385,18 +393,27 @@ var checkOthersidePiece = function(coordinate_x,coordinate_y,side){
     }
 
     //如果会被提，则提子
-    if(isdead == true){
-        for(var i in connection_arr){
-            for(var j in connection_arr[i]){
-                if(connection_arr[i][j] == side){
+    if(isdead == true)
+    {
+        console.log(connection_arr)
+        console.log('准备提子:side'+theside);
+        for(var i in connection_arr)
+        {
+            for(var j in connection_arr[i])
+            {
+                if(connection_arr[i][j] == theside)
+                {
                     arr[i][j] = 0;
                     deadcount++;
 
                     //将connection_arr中标志位为side的数组放入his_arr中供提子限制规则查询使用
-                    if(side == 1){
-                        black_arr[i][j] = side;
-                    }else if(side == 2){
-                        white_arr[i][j] = side;
+                    if(theside == 1)
+                    {
+                        black_arr[i][j] = theside;
+                    }
+                    else if(theside == 2)
+                    {
+                        white_arr[i][j] = theside;
                     }
 
                 }
@@ -424,33 +441,47 @@ var checkOthersidePiece = function(coordinate_x,coordinate_y,side){
  * @param side
  * @return {*}
  */
-var setconnection_arr = function(connection_arr,coordinate_x,coordinate_y,side){
+var setconnection_arr = function(connection_arr,coordinate_x,coordinate_y,theside)
+{
     //设置数组为本块相连的
-    if(connection_arr[coordinate_x][coordinate_y] != side && arr[coordinate_x][coordinate_y] == side){
-        connection_arr[coordinate_x][coordinate_y] = side;
+    if(connection_arr[coordinate_x][coordinate_y] != theside && arr[coordinate_x][coordinate_y] == theside)
+    {
+        connection_arr[coordinate_x][coordinate_y] = theside;
         console.log(coordinate_x + "====" + coordinate_y);
         //如果该黑子上方是白子并且不为第一行
-        if(coordinate_y>0 && arr[coordinate_x][coordinate_y-1] == side){
-            connection_arr = setconnection_arr(connection_arr,coordinate_x,coordinate_y-1,side);
-        }else if(coordinate_y>0 && arr[coordinate_x][coordinate_y-1] == 0){
+        if(coordinate_y>0 && arr[coordinate_x][coordinate_y-1] == theside)
+        {
+            connection_arr = setconnection_arr(connection_arr,coordinate_x,coordinate_y-1,theside);
+        }
+        else if(coordinate_y>0 && arr[coordinate_x][coordinate_y-1] == 0)
+        {
             connection_arr[coordinate_x][coordinate_y-1] = 3;
         }
         //如果该黑子左方是白子或者为第一行
-        if(coordinate_x>0 && arr[coordinate_x-1][coordinate_y] == side){
-            connection_arr = setconnection_arr(connection_arr,coordinate_x-1,coordinate_y,side);
-        }else if(coordinate_x>0 && arr[coordinate_x-1][coordinate_y] == 0){
+        if(coordinate_x>0 && arr[coordinate_x-1][coordinate_y] == theside)
+        {
+            connection_arr = setconnection_arr(connection_arr,coordinate_x-1,coordinate_y,theside);
+        }
+        else if(coordinate_x>0 && arr[coordinate_x-1][coordinate_y] == 0)
+        {
             connection_arr[coordinate_x-1][coordinate_y] = 3;
         }
         //如果该黑子右方是白子或者为第十九行
-        if(coordinate_x<18 && arr[coordinate_x+1][coordinate_y] == side){
-            connection_arr = setconnection_arr(connection_arr,coordinate_x+1,coordinate_y,side);
-        }else if(coordinate_x<18 && arr[coordinate_x+1][coordinate_y] == 0){
+        if(coordinate_x<18 && arr[coordinate_x+1][coordinate_y] == theside)
+        {
+            connection_arr = setconnection_arr(connection_arr,coordinate_x+1,coordinate_y,theside);
+        }
+        else if(coordinate_x<18 && arr[coordinate_x+1][coordinate_y] == 0)
+        {
             connection_arr[coordinate_x+1][coordinate_y] = 3;
         }
         //如果该黑子下方是白子或者为第十九行
-        if(coordinate_y<18 && arr[coordinate_x][coordinate_y+1] == side){
-            connection_arr = setconnection_arr(connection_arr,coordinate_x,coordinate_y+1,side);
-        }else if(coordinate_y<18 && arr[coordinate_x][coordinate_y+1] == 0){
+        if(coordinate_y<18 && arr[coordinate_x][coordinate_y+1] == theside)
+        {
+            connection_arr = setconnection_arr(connection_arr,coordinate_x,coordinate_y+1,theside);
+        }
+        else if(coordinate_y<18 && arr[coordinate_x][coordinate_y+1] == 0)
+        {
             connection_arr[coordinate_x][coordinate_y+1] = 3;
         }
     }
@@ -462,27 +493,35 @@ var setconnection_arr = function(connection_arr,coordinate_x,coordinate_y,side){
 //显示被吃的子
 var showkilled = function(){
     var blackinfo = "";
-    for(var i = 0 ; i < 19 ; i++ ){
-        for(var j = 0 ; j < 19 ; j++){
-            if(black_arr[i][j] == 1){
+    for(var i = 0 ; i < 19 ; i++ )
+    {
+        for(var j = 0 ; j < 19 ; j++)
+        {
+            if(black_arr[i][j] == 1)
+            {
                 blackinfo = blackinfo + "[" + (i+1) + ":" + (j+1) + "],";
             }
         }
     }
 
     var whiteinfo = "";
-    for(var i = 0 ; i < 19 ; i++ ){
-        for(var j = 0 ; j < 19 ; j++){
-            if(white_arr[i][j] == 2){
+    for(var i = 0 ; i < 19 ; i++ )
+    {
+        for(var j = 0 ; j < 19 ; j++)
+        {
+            if(white_arr[i][j] == 2)
+            {
                 whiteinfo = whiteinfo + "[" + (i+1) + "," + (j+1) + "],";
             }
         }
     }
 
-    if(blackinfo != ""){
+    if(blackinfo != "")
+    {
         blackinfo = "黑方被提子:" + blackinfo
     }
-    if(whiteinfo != ""){
+    if(whiteinfo != "")
+    {
         whiteinfo = "白方被提子:" + whiteinfo
     }
     console.log(blackinfo+"<br>"+whiteinfo);
@@ -501,96 +540,111 @@ var bindclick = function(){
         var click_y = parseInt((canvasY-(chessboard_start_y-company_y/2))/company_y)+1;//点击的y坐标
         click_x = (click_x >= 1 && click_x <= 19)?click_x:-10;
         click_y = (click_y >= 1 && click_y <= 19)?click_y:-10;
-        if(game_started == 1) {
-            if (click_x >= 1 && click_x <= 19 && click_y >= 1 && click_y <= 19) {
-                if (canplace){
+        if(game_started == 1)
+        {
+            if (click_x >= 1 && click_x <= 19 && click_y >= 1 && click_y <= 19)
+            {
+                if (canplace)
+                {
 
 
                     //如果此处没有棋子
-                    if (arr[click_x - 1][click_y - 1] == 0) {
-                    console.log(step + ":" + viewstep);
-                    if (isview == false) {
+                    if (arr[click_x - 1][click_y - 1] == 0)
+                    {
+                        console.log(step + ":" + viewstep);
+                        if (isview == false)
+                        {
                         /*//填入棋子
-                    if(side == "black"){
-                        arr[click_x-1][click_y-1] = 1;
-                    } else if (side == "white"){
+                        if(side == "black"){
+                            arr[click_x-1][click_y-1] = 1;
+                        } else if (side == "white"){
                         arr[click_x-1][click_y-1] = 2;
-                    }*/
+                        }*/
 
                         //判断是否在不可着子区域
-                    if(myside == "black"){
-                        if(black_arr [click_x-1] [click_y - 1] == 1){
-                            alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
-                        }else{
-                            arr [click_x-1] [click_y-1] = 1;
+                            if(side_me == "black")
+                            {
+                                if(black_arr [click_x-1] [click_y - 1] == 1)
+                                {
+                                    alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
+                                }
+                                else
+                                {
+                                    now_side = "black";
+                                    arr [click_x-1] [click_y-1] = 1;
 
-                            sendmsg('B['+string.substr(click_x -1, 1)+string.substr(click_y - 1, 1)+']');
 
-                            //将监测是否可以提子的数组置为19*19的0数组
-                            black_arr = initarr(
-                                black_arr);
 
-                            //检查是否可以提子，可以提子就提子
-                            checkPiece(click_x-1, click_y-1);
+                                    //将监测是否可以提子的数组置为19*19的0数组
+                                    black_arr = initarr(black_arr);
 
-                            showkilled();
+                                    //检查是否可以提子，可以提子就提子
+                                    checkPiece(click_x-1, click_y-1);
 
-                            //存储步骤
-                            savestep();
+                                    showkilled();
 
-                            //画棋盘
-                            drawBoard();
-                            //画棋子
-                            drawPiece();
-                            //换种颜色的棋子
-                            changeside();
-                            canplace = false;
+                                    //存储步骤
+                                    savestep();
 
+                                    //画棋盘
+                                    drawBoard();
+                                    //画棋子
+                                    drawPiece();
+                                    //换种颜色的棋子
+                                    //changeside();
+                                    sendmsg('B['+string.substr(click_x - 1, 1)+string.substr(click_y - 1, 1)+']');
+                                    canplace = false;
+
+                                }
+                            }
+                        else if (side_me == "white")
+                        {
+                            if(white_arr[click_x-1][click_y-1] == 2)
+                            {
+                                alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
+                            }
+                            else
+                            {
+                                now_side = "white";
+                                arr[click_x-1][click_y-1] = 2;
+
+                                //将监测是否可以提子的数组置为19*19的0数组
+                                white_arr = initarr(white_arr);
+
+                                //检查是否可以提子，可以提子就提子
+                                checkPiece(click_x-1, click_y-1);
+
+                                showkilled();
+
+                                //存储步骤
+                                savestep();
+
+                                //画棋盘
+                                drawBoard();
+                                //画棋子
+                                drawPiece();
+                                //换种颜色的棋子
+                                //changeside();
+
+                                sendmsg('W['+ string.substr(click_x-1, 1)+string.substr(click_y -1, 1)+']');
+                                canplace = false;
+                            }
                         }
+
                     }
-                    else if (myside == "white"){
-                        if(white_arr[click_x-1][click_y-1] == 2){
-                            alert(
-                                "根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
-                        }else{
-                            arr[click_x-1][
-                            click_y-1] = 2;
-                            sendmsg('W['+ string.substr(click_x-1, 1)+string.substr(click_y -1, 1)+']');
-                            //将监测是否可以提子的数组置为19*19的0数组
-                            white_arr = initarr(
-                                white_arr);
-
-                            //检查是否可以提子，可以提子就提子
-                            checkPiece(click_x-1, click_y-1);
-
-                            showkilled();
-
-                            //存储步骤
-                            savestep();
-
-                            //画棋盘
-                            drawBoard();
-                            //画棋子
-                            drawPiece();
-                            //换种颜色的棋子
-                            changeside();
-                            canplace = false;
-                        }
-                    }
-
-
-                }else{
+                else
+                    {
                         //alert("落子无悔大丈夫，请回到当前步骤落子！");
-                    alert("现在是回顾战局模式，请回到对弈模式落子！！！");
+                        alert("现在是回顾战局模式，请回到对弈模式落子！！！");
+                    }
+
                 }
-
-            } else{
-
-                alert("此处已有棋子，不可着子！");
+                else
+                    {
+                    alert("此处已有棋子，不可着子！");
+                    }
                 }
-        }
-
-        }
+            }
         }
         else
         {
@@ -604,25 +658,33 @@ var bindclick = function(){
 }
 
 //进入回顾战局模式
-var viewstep = function(thisstep){
-    if(!isNaN(parseInt(thisstep)) && parseInt(thisstep) >= 1){
+var viewstep = function(thisstep)
+{
+    if(!isNaN(parseInt(thisstep)) && parseInt(thisstep) >= 1)
+    {
         thisstep = thisstep -1;
 
-        if(parseInt(thisstep) < step){
+        if(parseInt(thisstep) < step)
+        {
             getstep(thisstep);
             isview = true;
-        }else{
+        }
+        else
+        {
             alert("所输步骤超出总步骤，请重输！！！");
         }
 
-    }else{
+    }
+    else
+    {
         alert("请输入回顾的步骤，步骤必须为整数！！！");
     }
 
 }
 
 //继续对弈
-var continuego = function(){
+var continuego = function()
+{
     isview = false;
     getstep(step-1);
 }
@@ -632,9 +694,12 @@ var getstep = function(thisstep){
 
     obj=JSON.parse(localStorage.getItem("gogame"));
 
-    if(parseInt(thisstep) < step){
+    if(parseInt(thisstep) < step)
+    {
         arr = obj.record[thisstep] ;
-    }else{
+    }
+    else
+    {
         alert("超出总步骤");
     }
 
@@ -643,9 +708,12 @@ var getstep = function(thisstep){
     //画棋子
     drawPiece();
     //设置下一步的落子方
-    if(step%2 == 0){
+    if(step%2 == 0)
+    {
         side = "black";
-    }else{
+    }
+    else
+    {
         side = "white";
     }
 }
@@ -684,14 +752,15 @@ socket.on('game_start', function (msg) {
     {
         console.log('成功创建游戏');
         alert('成功创建游戏，ID为:'+msg.game_id);
-        myside = msg.side;
+        side_me = msg.side;
         game_started = 0;
+        setmessage(side_me);
     }
     if(msg.game_id == $('#game_id').val() && msg.user_id != $('#user_id').val() && msg.begin == 1)
     {
         alert('另一个用户成功连接,游戏开始!');
 
-        $('#gameinfo').text($('#user_id').val() + '(黑)和' + msg.user_id +'(白)的对决');0
+        $('#gameinfo').text($('#user_id').val() + '(黑)和' + msg.user_id +'(白)的对决');
 
         //myside = msg.side;
         game_started = 1;
@@ -701,8 +770,10 @@ socket.on('game_start', function (msg) {
     {
         alert('成功连接游戏,游戏开始!');
         $('#gameinfo').text(msg.emeny + '(黑)和' + $('#user_id').val() +'(白)的对决');
-        myside = msg.side;
+        side_me = 'white';
+        side = 'white';
         game_started = 1;
+        setmessage(side_me);
     }
 
     }
@@ -720,9 +791,7 @@ socket.on('start_error', function (msg) {
 
 socket.on('play_game_client',function (msg) {
     //alert('接受到信息');
-    console.log(msg)
     game = eval('new Map('+msg.data+')');
-    console.log(game)
     if (game.get('game_id') == $('#game_id').val() && game.get('user_id') != $('#user_id').val())
     {
         var place = game.get('msg');
@@ -732,14 +801,16 @@ socket.on('play_game_client',function (msg) {
         var n_y = string.indexOf(letter_y);
         if(place.charAt(0)=='B')
         {
+            now_side= "black";
             arr[n_x][n_y] = 1;
         }
         else
         {
+            now_side = "white";
             arr[n_x][n_y] = 2;
         }
-        console.log(n_x,' ',n_y);
-        if(place.charAt(0)=='B')
+
+        if(side_me=='white')
         {
             black_arr = initarr(black_arr);
         }
@@ -768,7 +839,7 @@ socket.on('play_game_client',function (msg) {
 )
 
 socket.on('message', function (msg) {
-    console.log('recv msg');
+
     if (msg.game_id == $('#game_id').val())
     {
         setmessage(msg.user_id+':' +msg.message);
@@ -797,7 +868,7 @@ socket.on('message', function (msg) {
 
     function setmessage(msg){
         $('div#gamemessage').append('<br>' + $('<div/>').text(msg).html());
-        console.log('set msg:'+msg)
+
     }
 
 
