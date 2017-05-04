@@ -46,6 +46,18 @@
             font-family: "黑体";
             font-size: 25px;
         }
+        .systemmessage{
+            font-family: "楷体";
+            font-size: 20px;
+            position: absolute;
+            top: 100px;
+            left: 1100px;
+            border-width:thin;
+            border-color: red;
+            border-style: double;
+            height: 150px;
+            width: 200px;
+        }
     </style>
 	<link id="bootstrap_221" rel="stylesheet" type="text/css" class="library" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<script id="jquery_172" type="text/javascript" class="library" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
@@ -75,6 +87,16 @@
     <div id="message" class="message">
         收到的消息
         <div id = "gamemessage">
+
+        </div>
+    </div>
+    <!-- TODO 显示系统消息-->
+    <div class = "systemmessage">
+        系统消息
+        <div id="player_side">
+
+        </div>
+        <div id = "system_message">
 
         </div>
     </div>
@@ -572,6 +594,9 @@ var bindclick = function(){
                                 }
                                 else
                                 {
+                                    //将消息置空
+                                    setsystemmessage('');
+
                                     now_side = "black";
                                     arr [click_x-1] [click_y-1] = 1;
 
@@ -607,6 +632,8 @@ var bindclick = function(){
                             }
                             else
                             {
+                                //将消息置空
+                                setsystemmessage('');
                                 now_side = "white";
                                 arr[click_x-1][click_y-1] = 2;
 
@@ -637,14 +664,20 @@ var bindclick = function(){
                 else
                     {
                         //alert("落子无悔大丈夫，请回到当前步骤落子！");
-                        alert("现在是回顾战局模式，请回到对弈模式落子！！！");
+                        //alert("现在是回顾战局模式，请回到对弈模式落子！！！");
+                        setsystemmessage('现在是回顾战局模式，请回到对弈模式落子！！！');
                     }
 
                 }
                 else
                     {
-                    alert("此处已有棋子，不可着子！");
+                        //alert("此处已有棋子，不可着子！");
+                        setsystemmessage('此处已有棋子，不可着子！');
                     }
+                }
+                else
+                {
+                    setsystemmessage('现在还不是你的回合！')
                 }
             }
         }
@@ -652,7 +685,8 @@ var bindclick = function(){
         {
             if (click_x >= 1 && click_x <= 19 && click_y >= 1 && click_y <= 19)
             {
-                alert('游戏尚未开始!');
+                //alert('游戏尚未开始!');
+                setsystemmessage('游戏尚未开始，正在等待其他用户连接！');
             }
         }
     });
@@ -673,13 +707,15 @@ var viewstep = function(thisstep)
         }
         else
         {
-            alert("所输步骤超出总步骤，请重输！！！");
+            //alert("所输步骤超出总步骤，请重输！！！");
+            setsystemmessage('所输步骤超出总步骤，请重输！！！');
         }
 
     }
     else
     {
         alert("请输入回顾的步骤，步骤必须为整数！！！");
+        setsystemmessage('请输入回顾的步骤，步骤必须为整数！！！');
     }
 
 }
@@ -702,6 +738,7 @@ var getstep = function(thisstep){
     }
     else
     {
+        setsystemmessage('超出总步骤');
         alert("超出总步骤");
     }
 
@@ -756,7 +793,7 @@ socket.on('game_start', function (msg) {
         alert('成功创建游戏，ID为:'+msg.game_id);
         side_me = msg.side;
         game_started = 0;
-        setmessage(side_me);
+        //setmessage(side_me);
     }
     if(msg.game_id == $('#game_id').val() && msg.user_id != $('#user_id').val() && msg.begin == 1)
     {
@@ -765,6 +802,7 @@ socket.on('game_start', function (msg) {
         $('#gameinfo').text($('#user_id').val() + '(黑)和' + msg.user_id +'(白)的对决');
 
         //myside = msg.side;
+        $('div#player_side').text('你执黑棋');
         game_started = 1;
         canplace = true;
     }
@@ -775,7 +813,8 @@ socket.on('game_start', function (msg) {
         side_me = 'white';
         side = 'white';
         game_started = 1;
-        setmessage(side_me);
+        $('div#player_side').text('你执白棋');
+        //setmessage(side_me);
     }
 
     }
@@ -801,6 +840,7 @@ socket.on('play_game_client',function (msg) {
         var letter_y = place.charAt(3);
         var n_x = string.indexOf(letter_x);
         var n_y = string.indexOf(letter_y);
+        setsystemmessage('敌方落子:['+letter_x+','+letter_y+']\n现在轮到我方落子');
         if(place.charAt(0)=='B')
         {
             now_side= "black";
@@ -877,6 +917,9 @@ socket.on('message', function (msg) {
 
     }
 
+    function setsystemmessage(msg) {
+        $('div#system_message').text(msg);
+    }
 
 
 
