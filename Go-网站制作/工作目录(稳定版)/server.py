@@ -14,18 +14,19 @@ socketio = SocketIO(app)
 def index():
     print('连接')
     # 返回网站主页
-    return render_template('go.html')
+    return render_template('html/go.html')
 
 
 @app.route('/register')
 def register_html():
     print('注册')
-    return render_template('register.html')
+    return render_template('html/register.html')
+
 
 @app.route('/login')
 def login_html():
     print('登录')
-    return render_template('login.html')
+    return render_template('html/login.html')
 
 
 # 以下是socketio接受到各个不同事件时的处理函数
@@ -52,24 +53,30 @@ def connected_msg(msg):
 @socketio.on('game_start')
 def game_start_msg(msg):
     print(msg)
-    a = eval(msg['data'])
+    # 视为处理当前游戏
+    cur_game = msg
     # 是否存在该对局
-    if gamemain.is_exist_game(a):
-        # 存在
-        # 判断是否可以加入
-        if gamemain.joingame(a):
-            # 如果加入，返回消息
-            emit('game_start', {'user_id': a['user_id'], 'game_id': a['game_id'], 'begin': '1', 'side': 'white', \
-                                'emeny': gamemain.get_emeny(a)}, broadcast=True)
+    if gamemain.is_exist_game(cur_game):
+        # 如果存在
 
-            gamemain.create_sgf({'game_id': a['game_id'], 'PB': gamemain.get_emeny(a), 'PW': a['user_id']})
+        # 判断是否可以加入
+        if gamemain.joingame(cur_game):
+            # 如果加入，返回消息(包括敌人消息)
+            emit('game_start',
+                 {'user_id': cur_game['user_id'], 'game_id': cur_game['game_id'], 'begin': '1', 'side': 'white', \
+                  'emeny': gamemain.get_emeny(cur_game)}, broadcast=True)
+
+            gamemain.create_sgf(
+                {'game_id': cur_game['game_id'], 'PB': gamemain.get_emeny(cur_game), 'PW': cur_game['user_id']})
         else:
+
             # 否则报错
-            emit('start_error', {'game_id': a['game_id']})
+            emit('start_error', {'game_id': cur_game['game_id']})
     else:
         # 不存在该对局，那么就创建一个
-        gamemain.create_game(a)
-        emit('game_start', {'user_id': a['user_id'], 'game_id': a['game_id'], 'begin': '0', 'side': 'black'}, \
+        gamemain.create_game(cur_game)
+        emit('game_start',
+             {'user_id': cur_game['user_id'], 'game_id': cur_game['game_id'], 'begin': '0', 'side': 'black'}, \
              broadcast=True)
 
 
@@ -77,19 +84,18 @@ def game_start_msg(msg):
 @socketio.on('play_game_server')
 def play_game_msg(msg):
     print(msg)
-    a = eval(msg['data'])
     # 记录到sgf文件中
-    gamemain.writerecord(a)
+    gamemain.writerecord(msg)
     # 向其他连接的客户端广播
-    emit('play_game_client', {'data': tojson(a)}, broadcast=True)
+    emit('play_game_client', msg, broadcast=True)
 
 
 # 处理用户发来的消息
 @socketio.on('message')
 def message(msg):
-    a = eval(msg['data'])
     # 直接向其他客户端广播
-    emit('message', {'user_id': a['user_id'], 'game_id': a['game_id'], 'message': a['message']}, broadcast=True)
+    emit('message', msg, broadcast=True)
+
 
 # 处理注册
 @socketio.on('register')
@@ -99,6 +105,7 @@ def register(msg):
     else:
         emit('register_reply', {'data': 'failed'})
 
+
 # 处理登录
 @socketio.on('login')
 def login(msg):
@@ -106,9 +113,6 @@ def login(msg):
         emit('login_reply', {'data': 'success'})
     else:
         emit('login_reply', {'data': 'failed'})
-
-
-
 
 
 # 将dict转化为字符串的json格式使其可以被javascript接收
