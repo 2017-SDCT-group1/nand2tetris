@@ -36,6 +36,15 @@
 			text-align: left;
 		}
 
+		.game_info {
+			position: fixed;
+			top: 80px;
+			left: 50px;
+			width: 300px;
+			font-size: 15px;
+			font-family: "微软雅黑 Light";
+		}
+
 		.message {
 			position: absolute;
 			left: 1100px;
@@ -117,33 +126,40 @@
 		</div>
 	</div>
 	<iframe id="rfFrame" name="rfFrame" src="about:blank" style="display:none;"></iframe>
+	<div id="game_info" class="game_info well">
+		<button class="btn" onclick="get_game_info();">获取最新对局信息</button>
+		<br>
+		正在等待加入的对局
+		<div id="game_info_content">
 
-	<div class="rule well">
+		</div>
+	</div>
+	<!--<div class="rule well">
 		<span>功能小览</span>
 		<p class="rule1">1、黑子先走</p>
 		<p class="rule1">2、黑白双方轮流落子</p>
 		<p class="rule1">3、气数尽的棋子被提</p>
 		<p class="rule1">4、可查看本局历史</p>
 		<p class="rule1">5、查看本局记录时不可落子</p>
-	</div>
+	</div>-->
 
 	<canvas id="myCanvas" height="500" width="500">
 		your browser does not support the canvas tag
 	</canvas>
 
-	<div id="buttonbar" class="form-inline well">
-		<div>
-			<label>总步骤：</label>
-			<span id="totalstep">0</span>
-		</div>
-		<!--<button class="btn" onclick ="chooseside('black');">黑方</button>
-		<button class="btn" onclick ="chooseside('white');">白方</button>
-		<button class="btn" onclick ="chooseside('lookers');">围观</button>-->
-		<label>回顾步骤：</label>
-		<input type="text" name="step" id="step">
-		<button class="btn" onclick="viewstep(document.querySelector('#step').value);">回顾战局</button>
-		<button class="btn" onclick="continuego();">继续对弈</button>
-	</div>
+	<!--<div id="buttonbar" class="form-inline well">-->
+	<!--<div>-->
+	<!--<label>总步骤：</label>-->
+	<!--<span id="totalstep">0</span>-->
+	<!--</div>-->
+	<!--&lt;!&ndash;<button class="btn" onclick ="chooseside('black');">黑方</button>-->
+	<!--<button class="btn" onclick ="chooseside('white');">白方</button>-->
+	<!--<button class="btn" onclick ="chooseside('lookers');">围观</button>&ndash;&gt;-->
+	<!--<label>回顾步骤：</label>-->
+	<!--<input type="text" name="step" id="step">-->
+	<!--<button class="btn" onclick="viewstep(document.querySelector('#step').value);">回顾战局</button>-->
+	<!--<button class="btn" onclick="continuego();">继续对弈</button>-->
+	<!--</div>-->
 
 	<div>
 		<div id="blackinfo"></div>
@@ -165,6 +181,7 @@
 	</div>
 
 </div>
+
 <!--<span id = "log">坐标</span>-->
 
 <!--
@@ -936,6 +953,10 @@
 			}
 		}
 	);
+	socket.on('game_info', function (msg)
+	{
+		$('#game_info_content').html(msg.data);
+	});
 
 	//收到message
 	socket.on('message', function (msg)
@@ -953,6 +974,10 @@
 	{
 		console.log('send msg');
 		socket.emit('play_game_server', {user_id: $('#user_id').val(), game_id: $('#game_id').val(), msg: msg})
+	}
+	function get_game_info()
+	{
+		socket.emit('get_wait_game', {});
 	}
 
 	//发送用户id和对局id
