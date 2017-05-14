@@ -189,7 +189,7 @@
 -->
 
 <script>
-
+	var DEBUG = true;//DEBUG模式输出调试信息
 
 	var total_width = 500,//画布宽
 		total_height = 500,//画布高
@@ -239,7 +239,7 @@
 		obj.record[step] = arr;
 		localStorage.setItem("gogame", JSON.stringify(obj));
 		step++;
-		document.querySelector("#totalstep").innerHTML = step;
+		//document.querySelector("#totalstep").innerHTML = step;
 	}
 
 	var arr = new Array(19);//新建一个二维数组，用于存储当前步骤的棋子布局
@@ -401,7 +401,7 @@
 			myside = 2;
 			otherside = 1;
 		}
-		console.log('myside:', myside, 'otherside:', otherside)
+		//console.log('myside:', myside, 'otherside:', otherside)
 		//如果该子上方是对方棋子或者为第一行
 		if ((coordinate_y > 0 && arr[coordinate_x][coordinate_y - 1] == otherside))
 		{
@@ -491,8 +491,8 @@
 		//如果会被提，则提子
 		if (isdead == true)
 		{
-			console.log(connection_arr)
-			console.log('准备提子:side' + theside);
+			//console.log(connection_arr)
+			//console.log('准备提子:side' + theside);
 			for (var i in connection_arr)
 			{
 				for (var j in connection_arr[i])
@@ -518,7 +518,7 @@
 		}
 
 
-		console.log("isdead:" + isdead + ":提子数量:" + deadcount);
+		//console.log("isdead:" + isdead + ":提子数量:" + deadcount);
 		//若有提子返回true
 		if (deadcount > 0)
 		{
@@ -544,7 +544,7 @@
 		if (connection_arr[coordinate_x][coordinate_y] != theside && arr[coordinate_x][coordinate_y] == theside)
 		{
 			connection_arr[coordinate_x][coordinate_y] = theside;
-			console.log(coordinate_x + "====" + coordinate_y);
+			//console.log(coordinate_x + "====" + coordinate_y);
 			//如果该黑子上方是白子并且不为第一行
 			if (coordinate_y > 0 && arr[coordinate_x][coordinate_y - 1] == theside)
 			{
@@ -622,7 +622,7 @@
 		{
 			whiteinfo = "白方被提子:" + whiteinfo
 		}
-		console.log(blackinfo + "<br>" + whiteinfo);
+		//console.log(blackinfo + "<br>" + whiteinfo);
 		$("#blackinfo").html(blackinfo);
 		$("#whiteinfo").html(whiteinfo);
 	};
@@ -650,7 +650,7 @@
 						//如果此处没有棋子
 						if (arr[click_x - 1][click_y - 1] == 0)
 						{
-							console.log(step + ":" + viewstep);
+							//console.log(step + ":" + viewstep);
 							if (isview == false)
 							{
 								/*//填入棋子
@@ -851,15 +851,21 @@
 
 		socket.on('server_response', function (msg)
 		{
-			console.log("收到回应" + msg.data);
+			if(DEBUG)
+			{
+				console.log(msg);
+			}
+
 		});
 
 	});
 
 	socket.on('game_start', function (msg)
 		{
-			console.log('game start message');
-			console.log(msg);
+			if(DEBUG)
+			{
+				console.log(msg)
+			}
 			if (msg.user_id == $('#user_id').val() && msg.begin == 0 && msg.game_id == $('#game_id').val())
 			{
 				console.log('成功创建游戏');
@@ -895,6 +901,10 @@
 
 	socket.on('start_error', function (msg)
 	{
+		if(DEBUG)
+		{
+			console.log(msg)
+		}
 		if (msg.game_id == $('#game_id').val())
 		{
 			alert('加入游戏失败,该游戏ID已被使用');
@@ -906,6 +916,10 @@
 		{
 			//alert('接受到信息');
 			//game = eval('new Map(' + msg.data + ')');
+			if(DEBUG)
+			{
+				console.log(msg)
+			}
 			var game = msg;
 			if (game.game_id == $('#game_id').val() && game.user_id != $('#user_id').val())
 			{
@@ -955,13 +969,21 @@
 	);
 	socket.on('game_info', function (msg)
 	{
+		if(DEBUG)
+		{
+			console.log(msg)
+		}
 		$('#game_info_content').html(msg.data);
 	});
 
 	//收到message
 	socket.on('message', function (msg)
 	{
-//只有game_id一致时才显示
+		//只有game_id一致时才显示
+		if(DEBUG)
+		{
+			console.log('收到聊天信息',msg)
+		}
 		if (msg.game_id == $('#game_id').val())
 		{
 			setmessage(msg.user_id + ':' + msg.message);
@@ -972,7 +994,11 @@
 	//发送落子消息
 	function sendmsg(msg)
 	{
-		console.log('send msg');
+		if (DEBUG)
+		{
+			console.log('发送落子消息');
+		}
+
 		socket.emit('play_game_server', {user_id: $('#user_id').val(), game_id: $('#game_id').val(), msg: msg})
 	}
 	function get_game_info()

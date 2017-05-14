@@ -75,7 +75,7 @@ def game_start_msg(msg):
 
     if result['operate'] == 'join':
         emit('game_start', {'user_id': msg['user_id'], 'game_id': msg['game_id'], 'begin': '1', 'side': 'white',
-                            'emeny': gamemain.get_game(msg)['player2']}, broadcast=True)
+                            'emeny': gamemain.get_game(msg)['player1']}, broadcast=True)
         if DEBUG:
             print('加入游戏成功')
 
