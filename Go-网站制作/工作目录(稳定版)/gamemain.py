@@ -1,46 +1,8 @@
-import os
 import time
 import user
 import game_function as gf
 
 SGF_FILE_PATH = 'game_database/sgf/'
-
-
-# def create_game(game):
-#     f = open('game_database/log/' + game['game_id'] + '.log', 'w')
-#     f.write('PB[' + game['user_id'] + ']\n')
-#     f.close()
-#
-#
-# def joingame(game):
-#     f = open('game_database/log/' + game['game_id'] + '.log', 'r')
-#     game_list = f.readlines()
-#     print(game_list, ' ', len(game_list))
-#     if len(game_list) == 1:
-#         f = open('game_database/log/' + game['game_id'] + '.log', 'a')
-#         f.write('PW[' + game['user_id'] + ']\n')
-#         f.close()
-#         return True
-#     else:
-#         f.close()
-#         return
-#
-#
-# def is_exist_game(game):
-#     filelist = [x for x in os.listdir('game_database/log/')]
-#     print(filelist)
-#     if game['game_id'] + '.log' in filelist:
-#         print('exist:' + game['game_id'] + '.log')
-#         return True
-#     else:
-#         print('not exist:' + game['game_id'] + '.log')
-#         return False
-#
-#
-# def get_emeny(game):
-#     f = open('game_database/log/' + game['game_id'] + '.log', 'r')
-#     line = f.readlines()
-#     return line[0][3:-2]
 
 
 def write_record(game):

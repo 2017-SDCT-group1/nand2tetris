@@ -35,7 +35,7 @@ def login_html():
     return render_template('html/login.html')
 
 
-# 以下是socketio接受到各个不同事件时的处理函数
+# 以下是接受到各个不同事件时的处理函数
 
 # 测试遗留 忽略即可
 @socketio.on('client_event')
@@ -83,34 +83,6 @@ def game_start_msg(msg):
         emit('start_error', {'game_id': msg['game_id']})
         if DEBUG:
             print('加入游戏失败')
-
-
-            #
-            # # 视为处理当前游戏
-            # cur_game = msg
-            # # 是否存在该对局
-            # if gamemain.is_exist_game(cur_game):
-            #     # 如果存在
-            #
-            #     # 判断是否可以加入
-            #     if gamemain.joingame(cur_game):
-            #         # 如果加入，返回消息(包括敌人消息)
-            #         emit('game_start',
-            #              {'user_id': cur_game['user_id'], 'game_id': cur_game['game_id'], 'begin': '1', 'side': 'white', \
-            #               'emeny': gamemain.get_emeny(cur_game)}, broadcast=True)
-            #
-            #         gamemain.create_sgf(
-            #             {'game_id': cur_game['game_id'], 'PB': gamemain.get_emeny(cur_game), 'PW': cur_game['user_id']})
-            #     else:
-            #
-            #         # 否则报错
-            #         emit('start_error', {'game_id': cur_game['game_id']})
-            # else:
-            #     # 不存在该对局，那么就创建一个
-            #     gamemain.create_game(cur_game)
-            #     emit('game_start',
-            #          {'user_id': cur_game['user_id'], 'game_id': cur_game['game_id'], 'begin': '0', 'side': 'black'}, \
-            #          broadcast=True)
 
 
 @socketio.on('play_game_server')
@@ -172,6 +144,7 @@ def login(msg):
     """
     if DEBUG:
         print('收到登录请求', msg)
+
     if gamemain.login(msg):
         emit('login_reply', {'data': 'success'})
         if DEBUG:
@@ -181,6 +154,12 @@ def login(msg):
         emit('login_reply', {'data': 'failed'})
         if DEBUG:
             print('登录失败')
+
+
+@socketio.on('AI_event')
+def AI_message(msg):
+    if msg['method'] == 'create':
+        pass
 
 
 if __name__ == '__main__':

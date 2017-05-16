@@ -28,6 +28,9 @@
 		<br>
 		<input type="submit" id="login_submit" value="登录">
 	</form>
+	<div align="center">
+		<a href="/register">注册页面</a>
+	</div>
 	<div id="message">
 	</div>
 </div>
@@ -37,7 +40,11 @@
 		function ()
 		{
 			var socket = io.connect();
-			document.cookie = "expires=Sat, 1 Jun 2018 12:00:00 GMT";
+			var exp = new Date();
+			exp.setTime(exp.getTime() + 1000 * 60 * 60 * 24);
+			var Expiration_time = "expires=" + exp.toUTCString();
+			document.cookie = "user=test;" + Expiration_time;
+
 
 			$('form').submit(
 				function ()
@@ -49,11 +56,14 @@
 
 			socket.on('login_reply', function (msg)
 			{
-				if(msg.data == 'success')
+				if (msg.data == 'success')
 				{
 					$('#message').text('登陆成功');
-					document.cookie = "user_id=" + $('#user_id').val()+";";
-					document.cookie = "password=testpasword;";
+					document.cookie = "user_id=" + $('#user_id').val() + ";" + Expiration_time;
+					document.cookie = "password=testpasword;" + Expiration_time;
+					document.cookie = "login=true;" + Expiration_time;
+					alert('登陆成功,正在跳转');
+					window.location.href = "/";
 				}
 				else
 				{

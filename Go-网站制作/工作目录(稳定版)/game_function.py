@@ -112,5 +112,5 @@ def get_wait_game():
             wait_game_list.append(cur_game)
     result = ''
     for x in wait_game_list:
-        result += '创建人ID: '+x['player1'] +' 游戏ID: '+ x['game_id'] + '<br>'
+        result += '创建人ID: ' + x['player1'] + ' 游戏ID: ' + x['game_id'] + '<br>'
     return result
