@@ -18,21 +18,21 @@ def index():
     if DEBUG:
         print('访问')
     # 返回网站主页
-    return render_template('html/go.html')
+    return render_template('static/go.html')
 
 
 @app.route('/register')
 def register_html():
     if DEBUG:
         print('注册')
-    return render_template('html/register.html')
+    return render_template('static/register.html')
 
 
 @app.route('/login')
 def login_html():
     if DEBUG:
         print('登录')
-    return render_template('html/login.html')
+    return render_template('static/login.html')
 
 
 # 以下是接受到各个不同事件时的处理函数
