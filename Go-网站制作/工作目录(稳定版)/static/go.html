@@ -402,6 +402,7 @@
 		//如果有提掉对方棋子
 		if (iskill == true)
 		{
+			
 
 			//监测本子落子后己方棋子是否会被提
 		}
@@ -493,7 +494,9 @@
 			return false;
 		}
 	};
-
+	
+	
+	
 	/**
 	 * 递归组织连接的此方棋子
 	 * @param connection_arr
@@ -639,9 +642,11 @@
 										now_side = "black";
 										arr [click_x - 1] [click_y - 1] = 1;
 
-
+										
 										//将监测是否可以提子的数组置为19*19的0数组
 										black_arr = initarr(black_arr);
+										
+										
 
 										//检查是否可以提子，可以提子就提子
 										checkPiece(click_x - 1, click_y - 1);

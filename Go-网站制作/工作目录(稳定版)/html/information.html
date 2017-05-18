@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>个人中心</title>
+	<script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+	<script id="jquery_172" type="text/javascript" class="library"
+	        src="https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+			<script>
+			$(document).ready(			
+		function ()
+		{
+			
+			var ID=document.cookie.split(";")[0].split("=")[1];
+			var inf=document.cookie.split(";")[1].split("=")[1];
+			$("p").append(ID);
+			$("ol").append(inf);
+		}
+	)		
+</script>	
+			
+</head>
+<body>
+<iframe name='hidden_frame' id="hidden_frame" style="display:none"></iframe>
+<div align="center">
+	<h2>围棋测试1.0个人中心</h2>
+	<form target="hidden_frame" action="#">
+		<p>&nbsp;用户名:</p>
+		<br>
+		<p>对战信息:</p>
+		<ol>
+		
+		</ol>
+		<br>
+	</form>
+	<div id="message">
+	</div>
+</div>
+
+</body>
+<script type="text/javascript" charset="UTF-8">
+	$(document).ready(
+	function()
+	{
+		var socket = io.connect();
+			var exp = new Date();
+			exp.setTime(exp.getTime() + 1000 * 60 * 60 * 24);
+			var Expiration_time = "expires=" + exp.toUTCString();
+			document.cookie = "user=test;" + Expiration_time;
+
+
+			$('form').submit(
+				function ()
+				{
+					socket.emit('login', {user_id: $('#user_id').val(), password: $('#password').val()});
+				}
+			);
+
+
+			socket.on('login_reply', function (msg)
+			{
+				if (msg.data == 'success')
+				{
+					$('#message').text('登陆成功');
+					document.cookie = "user_id=" + $('#user_id').val() + ";" + Expiration_time;
+					document.cookie = "password=testpasword;" + Expiration_time;
+					document.cookie = "login=true;" + Expiration_time;
+					alert('登陆成功,正在跳转');
+					window.location.href = "/";
+				}
+				else
+				{
+					$('#message').text('未找到该用户');
+				}
+			});
+	
+	}
+	)
+	</script>
+
+</html>
