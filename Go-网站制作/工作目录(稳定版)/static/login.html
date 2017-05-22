@@ -12,24 +12,25 @@
 	<meta charset="UTF-8">
 	<title>登录界面</title>
 	<script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+    <link href="{{url_for("static",filename="css/loginstyle.css")}}" rel="stylesheet" type="text/css">
 	<script id="jquery_172" type="text/javascript" class="library"
 	        src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body>
+<body class="body1">
 <iframe name='hidden_frame' id="hidden_frame" style="display:none"></iframe>
-<div align="center">
+<div align="center" class="content">
 	<h2>围棋测试1.0登录界面</h2>
-	<form target="hidden_frame" action="#">
+	<form target="hidden_frame" action="#" class="form1">
 		用户名:
 		<input type="text" id="user_id">
 		<br>
-		密码:
+		&nbsp;密码:
 		<input type="password" id="password">
 		<br>
 		<input type="submit" id="login_submit" value="登录">
 	</form>
 	<div align="center">
-		<a href="/register">注册页面</a>
+		<a href="/register" class="regbt">注册页面</a>
 	</div>
 	<div id="message">
 	</div>
