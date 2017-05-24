@@ -1,7 +1,15 @@
 
-import os
+#需要改的地方
+#第一处port chain_name和stream
+#第二处函数upload
 
-default_remote_address = '@115.159.180.193'
+
+
+
+import os
+import socket
+import json
+
 
 chain_unli_exe = 'multichain-util.exe'
 chain_exe = 'multichaind.exe'
@@ -19,8 +27,13 @@ authority_write = 'write'
 authority_receive = 'receive'
 
 
+#1
+default_remote_address = '@115.159.180.193'
 CURRENT_CHAIN = 'chain'
-PORT = "6493"
+PORT = "4759"
+STREAM = "test"
+#1
+
 
 def main():
     print('正在连接远程区块链')
@@ -28,13 +41,28 @@ def main():
     print('正在查看流上的信息')
     connect_stream()
 
+
 def connect_remote_chain():
     os.system('%s %s%s:%s' % (chain_exe, CURRENT_CHAIN, default_remote_address, PORT))
-    print('没有连接到远程服务器的权限!')
-    print('请保存上述密钥,按照说明进行添加!')
+    result = os.popen('%s %s%s:%s' % (chain_exe, CURRENT_CHAIN, default_remote_address, PORT)).read()
+    key = result.split('\n')[4]
+    print(key)
+    os.system("pause")
+    #获取key
+    upload(key)
+
+    #上传
+    os.system('%s %s %s' % (chain_exe, CURRENT_CHAIN, method_run))
+    system("pause")
+
+#2
+def unload(key):
+    pass
+#2
+
 
 def connect_stream():
-    os.system('%s %s %s %s' % (chain_cli_exe, CURRENT_CHAIN, method_subscribe, PORT))
+    os.system('%s %s %s %s' % (chain_cli_exe, CURRENT_CHAIN, method_subscribe, STREAM))
     print("设置完成")
     os.system("pause")
 
