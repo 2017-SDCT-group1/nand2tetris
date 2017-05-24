@@ -1,0 +1,39 @@
+<!-- 
+@Time    : 2017/5/22 23:37
+@Author  : cyj
+@Site    : 
+@File    : information
+@Software: WebStorm
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>用户信息页</title>
+	<script id="jquery_172" type="text/javascript" class="library"
+	        src="https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"
+	      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+<iframe name='hidden_frame' id="hidden_frame" style="display:none"></iframe>
+<div align="center">
+	用户名:
+	<div id="user_id"></div>
+	<br>
+	等级:
+	<div id="rank"></div>
+	<br>
+	段位:
+	<div id="grade"></div>
+	<p>个人信息</p>
+	<form target="hidden_frame" action="#">
+		个人说明<input type="text" id="intr">
+		<br>
+		<input type="submit" id="sub" value="提交更改">
+	</form>
+</div>
+</body>
+</html>
