@@ -1,15 +1,47 @@
-#server/message receiver
-
+import socket
+import sys
 import os
-from socket import *
-host = ""
-port = 13000
-buf = 1024
-addr = (host, port)
-UDPSock = socket(AF_INET, SOCK_DGRAM)
-UDPSock.bind(addr)
-print("Waiting to recieve")
-(data, addr) = UDPSock.recvfrom(buf)
-os.system("%s" % data.decode('utf-8'))
-UDPSock.close()
-#os.exit(0)
+
+chain_unli_exe = 'multichain-util.exe'
+chain_exe = 'multichaind.exe'
+chain_cli_exe = 'multichain-cli.exe'
+
+authority_connect = 'connect'
+authority_send = 'send'
+authority_write = 'write'
+authority_receive = 'receive'
+
+name = 'a'
+while True :
+	serversocket = socket.socket(
+			socket.AF_INET, socket.SOCK_STREAM)
+			
+	host = '192.168.1.105'
+
+	port = 9999
+
+	serversocket.bind((host, port))
+
+	serversocket.listen(5)
+	print('start')
+
+	clientsocket,addr = serversocket.accept()
+	print('链接地址:%s' % str(addr))
+
+
+
+
+	text = clientsocket.recv(1024)
+
+	text = text.decode('utf-8')
+	print(text)
+
+
+	os.system('%s ' % ( text))
+
+
+	msg = 'success'
+
+	clientsocket.send(msg.encode('utf-8'))
+
+	clientsocket.close()
