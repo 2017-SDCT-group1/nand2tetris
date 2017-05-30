@@ -18,9 +18,9 @@ authority_send = 'send'
 authority_write = 'write'
 authority_receive = 'receive'
 
-chain_name = 'e'
-port = '2891'
-stream_name = 'f'
+chain_name = 'g'
+port = '4289'
+stream_name = 'h'
 default_remote_address = '@192.168.1.105'
 host = '192.168.1.105'
 # host = "127.0.0.1" # set to IP address of target computer

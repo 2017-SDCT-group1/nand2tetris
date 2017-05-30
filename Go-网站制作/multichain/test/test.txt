@@ -1,1 +1,1 @@
-multichain-cli e grant 1Z4JxrULjo8i9Yh66in9pp228Yg8LX5mLzx8JF connect
+multichain-cli g grant 14Rhz7LooxPNpowJgCi96Gdnq4nGx4yhyUa5xC connect
