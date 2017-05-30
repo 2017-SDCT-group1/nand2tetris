@@ -119,8 +119,6 @@ AM=M-1
 M=M+D
 @SP
 M=M+1
-@SP
-AM=M-1
 (END)
 @END
 0;JMP

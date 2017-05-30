@@ -1,6 +1,6 @@
 import os
 
-default_remote_address = '@115.159.180.193'
+default_remote_address = '@192.168.1.105'
 
 chain_unli_exe = 'multichain-util.exe'
 chain_exe = 'multichaind.exe'
