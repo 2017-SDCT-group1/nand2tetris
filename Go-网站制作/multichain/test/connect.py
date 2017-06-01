@@ -49,7 +49,7 @@ def connect_remote_chain():
 
     print(q)
     send(q)
-    print('here')
+    #print('here')
     os.popen('%s %s%s:%s' % (chain_exe, chain_name, default_remote_address, port))
     os.system("pause")
 
