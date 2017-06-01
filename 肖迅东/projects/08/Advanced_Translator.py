@@ -11,6 +11,7 @@ symbol_dict = {"this": ("THIS", "M"), "that": ("THAT", "M"), "argument": ("ARG",
                "static": ("f.%d", "M",), "temp": ("5", "A",)}
 
 function_dict = set()
+open_file_dict = set()
 
 start = "@SP\nAM=M-1\n"
 end = "@SP\nM=M+1\n"
@@ -112,21 +113,22 @@ def choose_function (operated_line):
         return return_tail
     elif operator == "call":
         return_address += 1
-        function_dict.add(operated_line)
+        function_dict.add(operated_line.split()[0] + " " + operated_line.split()[1] + " " + operated_line.split()[2])
         return call % (return_address - 1, int(operated_line.split()[2]),
                        operated_line.split()[1], return_address - 1)
 
 
 def binary_function(operated_line):
     global operator_counter
+    ope = operated_line.split()[0]
     out = ""
-    if operated_line in comp_operator:
-        out += comp % (operator_counter, operate_command[operated_line], operator_counter, operator_counter, operator_counter, operator_counter, operator_counter)
+    if ope in comp_operator:
+        out += comp % (operator_counter, operate_command[ope], operator_counter, operator_counter, operator_counter, operator_counter, operator_counter)
         operator_counter += 1
-    elif operated_line in unary_operator:
-        out += unary % operate_command[operated_line]
+    elif ope in unary_operator:
+        out += unary % operate_command[ope]
     else:
-        out += binary % operate_command[operated_line]
+        out += binary % operate_command[ope]
     return out
 
 
@@ -227,11 +229,16 @@ def main():
 
     for operated_line in function_dict:
         if operated_line.split()[1].split('.')[0] == inputfname.split('.')[0]:
-            break;
-        file_temp = open(operated_line.split()[1].split('.')[0] + ".vm")
+            continue;
+        else:
+            open_file_dict.add(operated_line.split()[1].split('.')[0])
+
+
+    for open_file in open_file_dict:
+        file_temp = open(open_file + ".vm")
         while 1:
             for line in file_temp:
-                output += choose_function(operated_line)
+                output += choose_function(line)
             file_temp.close()
             break;
 
