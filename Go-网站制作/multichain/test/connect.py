@@ -3,9 +3,9 @@ import sys
 import socket
 import time
 
-chain_unli_exe = 'multichain-util.exe'
-chain_exe = 'multichaind.exe'
-chain_cli_exe = 'multichain-cli.exe'
+chain_unli_exe = 'multichain-util'
+chain_exe = 'multichaind'
+chain_cli_exe = 'multichain-cli'
 
 method_create = 'create'
 CURRENT_CHAIN = 'chain'

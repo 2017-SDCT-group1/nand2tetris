@@ -1,1 +1,0 @@
-multichain-cli g grant 14Rhz7LooxPNpowJgCi96Gdnq4nGx4yhyUa5xC connect
